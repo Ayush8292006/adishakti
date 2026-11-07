@@ -1,0 +1,18 @@
+.splash {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--choco-900);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  color: #fff; overflow: hidden; cursor: pointer;
+}
+.splash-glow {
+  position: absolute; width: 520px; height: 520px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(184, 35, 90, 0.35), transparent 65%);
+  animation: splashPulse 2.4s ease-in-out infinite;
+}
+@keyframes splashPulse { 0%, 100% { transform: scale(0.9); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } }
+.splash-hat { position: relative; }
+.splash-word { position: relative; margin: 0; font-size: clamp(44px, 8vw, 84px); font-weight: 700; display: flex; overflow: hidden; }
+.splash-word span { display: inline-block; }
+.splash-sub { position: relative; margin: 0; font-size: 12px; color: var(--pink-300); font-weight: 600; text-align: center; padding: 0 16px; }
+.splash-bar { position: relative; width: 180px; height: 2px; background: rgba(255, 255, 255, 0.15); margin-top: 26px; border-radius: 2px; overflow: hidden; }
+.splash-bar span { position: absolute; inset: 0; background: var(--pink-300); transform-origin: left; }
