@@ -54,8 +54,7 @@
 .hero-card.big figcaption { position: absolute; left: 14px; bottom: 14px; background: #fff; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; color: var(--choco-800); }
 .hero-card.s1 { width: 40%; height: 40%; right: 2%; top: 2%; }
 .hero-card.s2 { width: 42%; height: 42%; right: 6%; bottom: 0; }
-.hero-float-pill { position: absolute; left: 0; bottom: 40px; display: flex; align-items: center; gap: 8px; background: var(--choco-800); color: #fff; font-weight: 600; font-size: 14px; padding: 12px 18px; border-radius: 999px; box-shadow: var(--shadow-md); animation: bob 4s ease-in-out infinite; }
-@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hero-float-pill { position: absolute; left: 0; bottom: 40px; display: flex; align-items: center; gap: 8px; background: var(--choco-800); color: #fff; font-weight: 600; font-size: 14px; padding: 12px 18px; border-radius: 999px; box-shadow: var(--shadow-md); }
 
 /* MARQUEE */
 .marquee { background: var(--choco-700); color: #fff; overflow: hidden; padding: 18px 0; transform: rotate(-1.2deg); margin: 10px -10px; }

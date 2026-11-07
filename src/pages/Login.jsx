@@ -13,9 +13,7 @@ const PORTALS = [
   { id: 'partner', to: '/partner', title: 'Partnership App', short: 'Partner', desc: 'For partner store owners', icon: Handshake, user: 'Store ID', demo: 'PS-1024' },
 ];
 
-const COL_A = ['ginkgo-topper', 'rose-mould', 'teddy-topper', 'nozzle-set', 'filigree-butterfly', 'hb-coin'];
-const COL_B = ['mini-crown', 'star-heart-topper', 'acrylic-box', 'fairy-topper', 'pompom-topper', 'rainbow-topper'];
-const STRIP = [...COL_A, ...COL_B];
+const PREVIEW = ['ginkgo-topper', 'rose-mould', 'filigree-butterfly', 'nozzle-set'];
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -37,15 +35,6 @@ export default function Login() {
     <Page className="home">
       <div className="home-bg" aria-hidden="true">
         <span className="glow g1" /><span className="glow g2" /><span className="grain" />
-      </div>
-
-      {/* Desktop: two vertical image columns drifting behind the card */}
-      <div className="home-cols" aria-hidden="true">
-        {[COL_A, COL_B].map((col, ci) => (
-          <div key={ci} className={`home-col ${ci ? 'down' : 'up'}`}>
-            {[...col, ...col].map((s, i) => <img key={i} src={`/products/${s}.jpg`} alt="" />)}
-          </div>
-        ))}
       </div>
 
       <header className="home-head container">
@@ -73,12 +62,10 @@ export default function Login() {
             Baking tools, moulds, toppers and packing for home bakers and bakeries — with 2‑minute cake demo videos.
           </motion.p>
 
-          {/* Mobile / tablet: horizontal product strip */}
-          <div className="home-strip" aria-hidden="true">
-            <div className="home-strip-track">
-              {[...STRIP, ...STRIP].map((s, i) => <img key={i} src={`/products/${s}.jpg`} alt="" />)}
-            </div>
-          </div>
+          {/* Static product preview row */}
+          <motion.div className="home-strip" aria-hidden="true" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }}>
+            {PREVIEW.map((s) => <img key={s} src={`/products/${s}.jpg`} alt="" />)}
+          </motion.div>
 
           <motion.ul className="home-stats" initial="h" animate="s" variants={{ h: {}, s: { transition: { staggerChildren: 0.08, delayChildren: 0.75 } } }}>
             {[[Package, '46+', 'Products'], [Video, '2 min', 'Cake demos'], [ShieldCheck, 'GST', 'Billing']].map(([I, n, l]) => (

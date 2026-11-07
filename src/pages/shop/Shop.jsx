@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView, animate } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useInView, animate } from 'framer-motion';
 import { Search, ShoppingBag, Play, X, Minus, Plus, ArrowRight, MapPin, Phone, LogOut, Sparkles, Truck, BadgePercent, Video, Menu } from 'lucide-react';
 import Logo from '../../components/Logo.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
@@ -46,9 +46,6 @@ export default function Shop() {
 
   const { scrollYProgress, scrollY } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
-  const heroY1 = useTransform(scrollY, [0, 700], [0, -120]);
-  const heroY2 = useTransform(scrollY, [0, 700], [0, 80]);
-  const heroRot = useTransform(scrollY, [0, 700], [0, -6]);
 
   useEffect(() => scrollY.on('change', (y) => setScrolled(y > 40)), [scrollY]);
   useEffect(() => { document.body.style.overflow = cartOpen ? 'hidden' : ''; }, [cartOpen]);
@@ -152,17 +149,17 @@ export default function Shop() {
           </motion.div>
         </div>
         <div className="hero-art">
-          <motion.div className="hero-blob" animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: 'linear' }} />
-          <motion.figure className="hero-card big" style={{ y: heroY1, rotate: heroRot }}
-            initial={{ opacity: 0, scale: 0.85, rotate: -6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
+          <div className="hero-blob" />
+          <motion.figure className="hero-card big"
+            initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
             <img src="/products/ginkgo-topper.jpg" alt="Gold ginkgo leaf cake topper" />
             <figcaption>Gold Ginkgo Topper · {formatINR(149)}</figcaption>
           </motion.figure>
-          <motion.figure className="hero-card s1" style={{ y: heroY2 }}
+          <motion.figure className="hero-card s1"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.4 }}>
             <img src="/products/rose-mould.jpg" alt="Rose and sunflower chocolate mould" />
           </motion.figure>
-          <motion.figure className="hero-card s2" style={{ y: heroY1 }}
+          <motion.figure className="hero-card s2"
             initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.55 }}>
             <img src="/products/teddy-topper.jpg" alt="Teddy bear cake toppers" />
           </motion.figure>
