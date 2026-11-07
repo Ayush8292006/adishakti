@@ -134,3 +134,14 @@
 .ca-line { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .ca-line img { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
 .ca-line div { flex: 1; } .ca-line b { display: block; font-size: 13px; } .ca-line span { font-size: 13px; color: var(--muted); }
+
+.ca-portals { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; margin-top: 18px; border-radius: 14px; border: 1.5px solid var(--line-2); color: var(--pink-700); font-weight: 600; text-decoration: none; }
+
+/* real phones: respect notch / home-indicator safe areas */
+@media (max-width: 639px) {
+  .ca-pad { padding-top: calc(env(safe-area-inset-top) + 18px); }
+  .ca-round.back { top: calc(env(safe-area-inset-top) + 14px); }
+  .ca-tabs { padding-bottom: calc(env(safe-area-inset-bottom) + 6px); }
+  .ca-pd-bar { padding-bottom: calc(env(safe-area-inset-bottom) + 12px); }
+  .ca-sheet { padding-bottom: calc(env(safe-area-inset-bottom) + 20px); }
+}

@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip } from 'recharts';
-import { LayoutDashboard, ShoppingCart, Package, Wallet, Bell, Plus, Pencil, X, ImagePlus, CheckCircle2, TrendingUp, Clock } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Wallet, Bell, Plus, Pencil, X, ImagePlus, CheckCircle2, TrendingUp, Clock, LogOut } from 'lucide-react';
 import PhoneFrame from '../../components/PhoneFrame.jsx';
 import { Page } from '../../components/Reveal.jsx';
 import { PRODUCTS, CATEGORIES, formatINR } from '../../data/products.js';
@@ -193,6 +194,7 @@ export default function PartnerApp() {
                         </motion.div>
                       ))}
                     </div>
+                    <Link to="/" className="pa-portals"><LogOut size={16} /> All portals / Logout</Link>
                   </>
                 )}
               </motion.div>

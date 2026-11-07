@@ -34,3 +34,24 @@
 }
 .pcard-add:hover { background: var(--pink-600); transform: rotate(90deg); }
 .pcard-add.done { background: #1e7a46; }
+
+/* touch screens: no hover-only quick add, no lift */
+@media (hover: none) {
+  .pcard-quick { display: none; }
+  .pcard:hover { transform: none; box-shadow: none; border-color: var(--line); }
+  .pcard:hover .pcard-media img { transform: none; }
+}
+@media (max-width: 639px) {
+  .pcard { border-radius: 18px; }
+  .pcard-badges { top: 8px; left: 8px; gap: 4px; }
+  .pbadge { font-size: 10px; padding: 4px 8px; }
+  .pbadge.low { top: auto; bottom: 8px; right: 8px; }
+  .pcard-body { padding: 10px 10px 12px; gap: 4px; }
+  .pcard-cat { font-size: 10px; letter-spacing: 0.06em; }
+  .pcard-body h3 { font-size: 13px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 34px; }
+  .pcard-var { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pcard-foot { padding-top: 6px; }
+  .pcard-price { font-size: 17px; }
+  .pcard-price small { display: none; }
+  .pcard-add { width: 44px; height: 44px; border-radius: 12px; }
+}

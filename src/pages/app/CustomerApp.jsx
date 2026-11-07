@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, LayoutGrid, PlayCircle, ShoppingBag, User, Search, ChevronLeft, Plus, Minus, Play, X, Package, MapPin } from 'lucide-react';
+import { Home, LayoutGrid, PlayCircle, ShoppingBag, User, Search, ChevronLeft, Plus, Minus, Play, X, Package, MapPin, LogOut } from 'lucide-react';
 import PhoneFrame from '../../components/PhoneFrame.jsx';
 import { Page } from '../../components/Reveal.jsx';
 import { PRODUCTS, CATEGORIES, formatINR, findProduct, isLowStock } from '../../data/products.js';
@@ -294,6 +295,7 @@ export default function CustomerApp() {
                     {[['#AST-1042', 'Pending', '₹487'], ['#AST-1031', 'Delivered', '₹1,145'], ['#AST-1019', 'Delivered', '₹318']].map(([id, s, a]) => (
                       <div key={id} className="ca-order"><Package size={18} /><div><b>{id}</b><small>{s}</small></div><b>{a}</b></div>
                     ))}
+                    <Link to="/" className="ca-portals"><LogOut size={16} /> All portals / Logout</Link>
                   </div>
                 )}
               </motion.div>

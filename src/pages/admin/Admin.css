@@ -101,3 +101,30 @@ tr { transition: background 0.2s; } tbody tr:hover { background: #fbf5ee; }
   .admin-inner { padding: 20px 16px 48px; }
   .admin-topbar { padding: 12px 16px; position: static; }
 }
+
+/* ===== Admin responsive (phones) ===== */
+@media (max-width: 860px) {
+  .side { position: sticky; top: 0; z-index: 20; }
+  .side.open { box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); }
+  .side nav { margin-top: 6px; }
+  .admin-topbar { display: none; }
+}
+@media (max-width: 639px) {
+  .admin-inner { padding: 16px 12px 40px; }
+  .view-head h1 { font-size: 26px; }
+  .view-head .btn { width: 100%; }
+  .tabs { display: flex; width: 100%; }
+  .tabs button { flex: 1; padding: 0 8px; font-size: 13px; height: 42px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kpi { padding: 14px; border-radius: 16px; }
+  .kpi b { font-size: 22px; }
+  .kpi span, .kpi small { font-size: 12px; }
+  .row { gap: 12px; margin-bottom: 12px; }
+  .grow1, .grow2 { flex-basis: 100%; }
+  .panel { padding: 16px 12px; border-radius: 18px; margin-bottom: 12px; }
+  .panel-head h2 { font-size: 15px; }
+  .stock-filters, .stock-filters > *, .mini-search input { width: 100%; }
+  table { min-width: 560px; font-size: 13px; }
+  td, th { padding: 10px 8px; }
+  .preq-actions { width: 100%; } .preq-actions .btn { flex: 1; }
+}

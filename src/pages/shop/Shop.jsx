@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView, animate } from 'framer-motion';
-import { Search, ShoppingBag, Play, X, Minus, Plus, ArrowRight, MapPin, Phone, LogOut, Sparkles, Truck, BadgePercent, Video } from 'lucide-react';
+import { Search, ShoppingBag, Play, X, Minus, Plus, ArrowRight, MapPin, Phone, LogOut, Sparkles, Truck, BadgePercent, Video, Menu } from 'lucide-react';
 import Logo from '../../components/Logo.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
 import VideoModal from '../../components/VideoModal.jsx';
@@ -42,6 +42,7 @@ export default function Shop() {
   const [video, setVideo] = useState(null);
   const [toast, setToast] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const { scrollYProgress, scrollY } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
@@ -75,32 +76,51 @@ export default function Shop() {
       <motion.div className="scroll-progress" style={{ scaleX: progress }} />
 
       <div className="topbar">
-        <span>Wholesale rates for bakeries &amp; home bakers</span>
-        <span>Order booking: 080-41486443 · 7996 222111</span>
+        <span className="desk-only">Wholesale rates for bakeries &amp; home bakers</span>
+        <span>Order booking: <a href="tel:+917996222111">7996 222111</a></span>
       </div>
 
       <header className={`shop-header ${scrolled ? 'scrolled' : ''}`}>
         <div className="container shop-header-row">
-          <a href="#top" aria-label="Adi Shakti Trader home"><Logo size={42} /></a>
+          <a href="#top" className="shop-logo" aria-label="Adi Shakti Trader home"><Logo size={40} /></a>
           <label className="shop-search">
             <Search size={18} />
             <span className="sr-only">Search products</span>
             <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search moulds, toppers, nozzles…"
               onFocus={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })} />
           </label>
-          <nav className="shop-nav">
+          <nav className="shop-nav" aria-label="Main">
             <a href="#shop">Shop</a>
             <a href="#videos">Cake Demos</a>
             <a href="#partners">Partner Stores</a>
-            <Link to="/" title="Back to login"><LogOut size={18} /></Link>
           </nav>
-          <motion.button className="btn btn-dark cart-btn" onClick={() => setCartOpen(true)} whileTap={{ scale: 0.95 }}>
-            <ShoppingBag size={19} /> Cart
-            <motion.span key={cart.count} className="cart-count" initial={{ scale: 1.6 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 15 }}>
-              {cart.count}
-            </motion.span>
-          </motion.button>
+          <div className="shop-actions">
+            <Link to="/" className="icon-btn desk-only" title="All portals" aria-label="All portals"><LogOut size={18} /></Link>
+            <motion.button className="btn btn-dark cart-btn" onClick={() => setCartOpen(true)} whileTap={{ scale: 0.95 }} aria-label={`Cart, ${cart.count} items`}>
+              <ShoppingBag size={19} /> <span className="cart-word">Cart</span>
+              <motion.span key={cart.count} className="cart-count" initial={{ scale: 1.6 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 15 }}>
+                {cart.count}
+              </motion.span>
+            </motion.button>
+            <button className="icon-btn mob-only" onClick={() => setMenuOpen((o) => !o)} aria-expanded={menuOpen} aria-label="Menu">
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.nav className="mob-menu" aria-label="Mobile" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+              <div className="container">
+                {[['#shop', 'Shop all products'], ['#videos', 'Cake demo videos'], ['#partners', 'Partner stores']].map(([h, l], i) => (
+                  <motion.a key={h} href={h} onClick={() => setMenuOpen(false)} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.05 + i * 0.05 }}>
+                    {l} <ArrowRight size={16} />
+                  </motion.a>
+                ))}
+                <Link to="/" onClick={() => setMenuOpen(false)}>All portals / Logout <LogOut size={16} /></Link>
+              </div>
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* HERO */}
