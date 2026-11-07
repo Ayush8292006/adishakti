@@ -1,143 +1,102 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Store, LayoutDashboard, Smartphone, Handshake, ArrowRight, Eye, EyeOff, Check, Phone, MapPin, Sparkles, Video, Package, ShieldCheck } from 'lucide-react';
-import Logo from '../components/Logo.jsx';
-import { Page } from '../components/Reveal.jsx';
+import { ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Lines } from '../components/Motion.jsx';
+import { Wordmark } from '../components/Layout.jsx';
+import { useShop } from '../context/ShopContext.jsx';
 import './Login.css';
 
-const PORTALS = [
-  { id: 'shop', to: '/shop', title: 'Customer Website', short: 'Website', desc: 'Shop moulds, toppers & tools', icon: Store, user: 'Phone number', demo: '7996 222111' },
-  { id: 'admin', to: '/admin', title: 'Super Admin', short: 'Admin', desc: 'Tally, stock, billing, videos', icon: LayoutDashboard, user: 'Admin ID', demo: 'admin@adishakti' },
-  { id: 'app', to: '/app', title: 'Customer App', short: 'App', desc: 'Mobile shopping app', icon: Smartphone, user: 'Phone number', demo: '7996 222111' },
-  { id: 'partner', to: '/partner', title: 'Partnership App', short: 'Partner', desc: 'For partner store owners', icon: Handshake, user: 'Store ID', demo: 'PS-1024' },
-];
-
-const PREVIEW = ['ginkgo-topper', 'rose-mould', 'filigree-butterfly', 'nozzle-set'];
-
-const ease = [0.22, 1, 0.36, 1];
+const EASE = [0.22, 1, 0.36, 1];
 
 export default function Login() {
+  const shop = useShop();
   const navigate = useNavigate();
-  const [portal, setPortal] = useState('shop');
-  const [showPw, setShowPw] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const current = PORTALS.find((p) => p.id === portal);
+  const [mode, setMode] = useState('in'); // 'in' | 'up'
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const go = (to) => {
-    setLoading(true);
-    // Prototype: no real auth — go straight to the chosen portal
-    setTimeout(() => navigate(to), 650);
+  const submit = (e) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    setBusy(true);
+    // Prototype: no real auth yet — connect to the backend here
+    setTimeout(() => {
+      shop.setUser({ name: data.get('name') || 'Customer', phone: data.get('phone') });
+      navigate('/');
+    }, 700);
   };
-  const submit = (e) => { e.preventDefault(); go(current.to); };
 
   return (
-    <Page className="home">
-      <div className="home-bg" aria-hidden="true">
-        <span className="glow g1" /><span className="glow g2" /><span className="grain" />
-      </div>
+    <motion.main className="auth" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <section className="auth-visual" aria-hidden="true">
+        <motion.img src="/products/ginkgo-topper.jpg" alt="" initial={{ scale: 1.15 }} animate={{ scale: 1 }} transition={{ duration: 1.8, ease: EASE }} />
+        <motion.div className="auth-visual-cover" initial={{ scaleY: 1 }} animate={{ scaleY: 0 }} transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }} />
+        <div className="auth-visual-text">
+          <span className="label">Adi Shakti Trader</span>
+          <p className="serif">Baking tools &amp; accessories, chosen for home bakers.</p>
+        </div>
+      </section>
 
-      <header className="home-head container">
-        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <Logo light size={42} />
-        </motion.div>
-        <motion.a href="tel:+917996222111" className="home-call" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
-          <Phone size={16} /><span>7996 222111</span>
-        </motion.a>
-      </header>
+      <section className="auth-panel">
+        <header className="auth-top">
+          <Link to="/" className="link"><ArrowLeft size={14} /> Back to shop</Link>
+          <Link to="/" aria-label="Adi Shakti Trader home"><Wordmark /></Link>
+        </header>
 
-      <main className="home-main container">
-        <section className="home-hero">
-          <motion.span className="home-tag" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <Sparkles size={14} /> Choice of Home Bakers
-          </motion.span>
-          <h1 className="display">
-            {[<>Bake it</>, <><em>beautiful</em>,</>, <>every time.</>].map((l, i) => (
-              <span className="line-mask" key={i}>
-                <motion.span initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.2 + i * 0.12, duration: 0.9, ease }}>{l}</motion.span>
-              </span>
+        <div className="auth-form-wrap">
+          <AnimatePresence mode="wait">
+            <motion.div key={mode} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45, ease: EASE }}>
+              <span className="label">{mode === 'in' ? 'Welcome back' : 'New customer'}</span>
+              <Lines as="h1" className="serif auth-title" inView={false} lines={mode === 'in' ? ['Sign in'] : ['Create', <em key="e">account</em>]} />
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="auth-tabs" role="tablist" aria-label="Sign in or create account">
+            {[['in', 'Sign in'], ['up', 'Create account']].map(([k, l]) => (
+              <button key={k} role="tab" aria-selected={mode === k} className={mode === k ? 'on' : ''} onClick={() => setMode(k)}>
+                {l}
+                {mode === k && <motion.span layoutId="auth-line" className="auth-line" transition={{ duration: 0.45, ease: EASE }} />}
+              </button>
             ))}
-          </h1>
-          <motion.p className="home-sub" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            Baking tools, moulds, toppers and packing for home bakers and bakeries — with 2‑minute cake demo videos.
-          </motion.p>
+          </div>
 
-          {/* Static product preview row */}
-          <motion.div className="home-strip" aria-hidden="true" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }}>
-            {PREVIEW.map((s) => <img key={s} src={`/products/${s}.jpg`} alt="" />)}
-          </motion.div>
-
-          <motion.ul className="home-stats" initial="h" animate="s" variants={{ h: {}, s: { transition: { staggerChildren: 0.08, delayChildren: 0.75 } } }}>
-            {[[Package, '46+', 'Products'], [Video, '2 min', 'Cake demos'], [ShieldCheck, 'GST', 'Billing']].map(([I, n, l]) => (
-              <motion.li key={l} variants={{ h: { opacity: 0, y: 14 }, s: { opacity: 1, y: 0 } }}>
-                <span><I size={18} /></span><div><b>{n}</b><small>{l}</small></div>
-              </motion.li>
-            ))}
-          </motion.ul>
-          <motion.p className="home-addr" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
-            <MapPin size={15} /> #39, WAT Street, Gandhi Bazaar, Basavanagudi, Bengaluru
-          </motion.p>
-        </section>
-
-        <motion.section className="home-card" aria-label="Sign in"
-          initial={{ opacity: 0, y: 40, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.9, delay: 0.25, ease }}>
-          <form onSubmit={submit}>
-            <h2 className="display">Sign in</h2>
-            <p className="home-card-sub">Choose a portal to continue</p>
-
-            <fieldset className="portals">
-              <legend className="sr-only">Choose a portal</legend>
-              {PORTALS.map((p, i) => {
-                const Icon = p.icon;
-                const active = p.id === portal;
-                return (
-                  <motion.label key={p.id} className={`portal ${active ? 'active' : ''}`}
-                    initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 + i * 0.07 }}
-                    whileHover={{ y: -3 }} whileTap={{ scale: 0.97 }}>
-                    <input type="radio" name="portal" value={p.id} checked={active} onChange={() => setPortal(p.id)} className="sr-only" />
-                    {active && <motion.span layoutId="portal-ring" className="portal-ring" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />}
-                    <span className="portal-icon"><Icon size={20} /></span>
-                    <span className="portal-text">
-                      <span className="portal-title"><span className="t-long">{p.title}</span><span className="t-short">{p.short}</span></span>
-                      <span className="portal-desc">{p.desc}</span>
-                    </span>
-                    <AnimatePresence>
-                      {active && (
-                        <motion.span className="portal-check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                          <Check size={12} strokeWidth={3.5} />
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.label>
-                );
-              })}
-            </fieldset>
-
-            <AnimatePresence mode="wait">
-              <motion.div key={current.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
-                <label className="field">
-                  <span>{current.user}</span>
-                  <input required defaultValue={current.demo} autoComplete="username" />
-                </label>
-              </motion.div>
+          <form className="auth-form" onSubmit={submit}>
+            <AnimatePresence initial={false}>
+              {mode === 'up' && (
+                <motion.label key="name" className="fld" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.4, ease: EASE }}>
+                  <span>Full name</span>
+                  <input name="name" required autoComplete="name" placeholder="Your name" />
+                </motion.label>
+              )}
             </AnimatePresence>
-            <label className="field">
-              <span>Password</span>
-              <span className="field-pw">
-                <input required type={showPw ? 'text' : 'password'} defaultValue="prototype" autoComplete="current-password" />
-                <button type="button" className="pw-toggle" onClick={() => setShowPw((s) => !s)} aria-label={showPw ? 'Hide password' : 'Show password'}>
-                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </span>
+            <label className="fld">
+              <span>Mobile number</span>
+              <div className="fld-row"><em>+91</em><input name="phone" required inputMode="numeric" autoComplete="tel" placeholder="98765 43210" /></div>
             </label>
-
-            <button className="btn btn-primary home-submit" type="submit" disabled={loading}>
-              {loading ? <span className="spinner" aria-label="Signing in" /> : <>Continue to {current.title} <ArrowRight size={18} /></>}
+            <label className="fld">
+              <span>Password</span>
+              <div className="fld-row">
+                <input name="password" required type={show ? 'text' : 'password'} autoComplete={mode === 'in' ? 'current-password' : 'new-password'} placeholder="••••••••" />
+                <button type="button" className="icon-btn" onClick={() => setShow((s) => !s)} aria-label={show ? 'Hide password' : 'Show password'}>
+                  {show ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
+                </button>
+              </div>
+            </label>
+            {mode === 'in' && <button type="button" className="link auth-forgot">Forgot password?</button>}
+            <button className="btn btn-solid auth-submit" type="submit" disabled={busy}>
+              {busy ? 'Please wait…' : mode === 'in' ? 'Sign in' : 'Create account'} {!busy && <ArrowRight size={16} className="arrow" />}
             </button>
-            <p className="home-foot">Prototype — any details work. <button type="button" onClick={() => go('/shop')}>Browse shop as guest</button></p>
           </form>
-        </motion.section>
-      </main>
-    </Page>
+
+          <p className="auth-note muted">
+            {mode === 'in' ? 'New to Adi Shakti? ' : 'Already have an account? '}
+            <button className="link" onClick={() => setMode(mode === 'in' ? 'up' : 'in')}>{mode === 'in' ? 'Create an account' : 'Sign in'}</button>
+          </p>
+        </div>
+
+        <footer className="auth-foot muted">Need help? Call <a href="tel:+917996222111">7996 222111</a></footer>
+      </section>
+    </motion.main>
   );
 }

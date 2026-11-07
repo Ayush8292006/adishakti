@@ -1,56 +1,41 @@
-import { motion } from 'framer-motion';
-import { Plus, Check, Heart } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Plus, Check } from 'lucide-react';
+import { useShop } from '../context/ShopContext.jsx';
 import { formatINR, isLowStock } from '../data/products.js';
-import { useCart } from '../context/CartContext.jsx';
 import './ProductCard.css';
 
-export default function ProductCard({ product, onAdded }) {
-  const cart = useCart();
+export default function ProductCard({ product: p, index = 0 }) {
+  const shop = useShop();
   const [added, setAdded] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const p = product;
-
   const add = () => {
-    cart.add(p.id);
+    shop.add(p.id);
     setAdded(true);
-    onAdded?.(p);
-    setTimeout(() => setAdded(false), 1200);
+    setTimeout(() => setAdded(false), 1400);
   };
-
   return (
-    <motion.article
-      layout
-      className="pcard"
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div className="pcard-media">
-        <img src={p.img} alt={p.name} loading="lazy" />
-        <div className="pcard-badges">
-          {p.isNew && <span className="pbadge new">New arrival</span>}
+    <motion.article className="pc" layout
+      initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.7, delay: (index % 4) * 0.05, ease: [0.22, 1, 0.36, 1] }}>
+      <div className="pc-media">
+        <Link to={`/product/${p.id}`} tabIndex={-1} aria-hidden="true">
+          <img src={p.img} alt="" loading="lazy" />
+        </Link>
+        <div className="pc-tags">
+          {p.isNew && <span>New</span>}
+          {isLowStock(p) && <span className="low">Few left</span>}
         </div>
-        <motion.button whileTap={{ scale: 0.8 }} className={`pcard-like ${liked ? 'on' : ''}`} onClick={() => setLiked((l) => !l)} aria-pressed={liked} aria-label={liked ? 'Remove from wishlist' : 'Add to wishlist'}>
-          <Heart size={17} fill={liked ? 'currentColor' : 'none'} />
-        </motion.button>
-        {isLowStock(p) && <span className="pbadge low">Only {p.stock} left</span>}
-        <button className="pcard-quick" onClick={add} aria-label={`Quick add ${p.name}`}>
-          {added ? <><Check size={16} /> Added</> : <><Plus size={16} /> Quick add</>}
+        <button className={`pc-add ${added ? 'done' : ''}`} onClick={add} aria-label={`Add ${p.name} to cart`}>
+          {added ? <Check size={16} /> : <Plus size={16} />}
+          <span className="pc-add-text">{added ? 'Added' : 'Add to cart'}</span>
         </button>
       </div>
-      <div className="pcard-body">
-        <span className="pcard-cat">{p.category}</span>
+      <Link to={`/product/${p.id}`} className="pc-info">
+        <span className="pc-cat">{p.category}</span>
         <h3>{p.name}</h3>
-        {p.variants && <span className="pcard-var">{p.variants.map((v) => v.name).join(' · ')}</span>}
-        <div className="pcard-foot">
-          <span className="pcard-price display">{formatINR(p.price)}<small>/{p.unit}</small></span>
-          <motion.button whileTap={{ scale: 0.85 }} className={`pcard-add ${added ? 'done' : ''}`} onClick={add} aria-label={`Add ${p.name} to cart`}>
-            {added ? <Check size={18} /> : <Plus size={18} />}
-          </motion.button>
-        </div>
-      </div>
+        <span className="pc-price">{formatINR(p.price)} <small>/ {p.unit}</small></span>
+      </Link>
     </motion.article>
   );
 }

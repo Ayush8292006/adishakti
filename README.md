@@ -1,6 +1,6 @@
-# Adi Shakti Trader – 4 Prototypes (React)
+# Adi Shakti Trader — Customer Website
 
-Customer Website, Super Admin Panel (Tally), Customer App and Partnership App in one React + Vite project.
+React + Vite. White · beige · black editorial design with scroll animations. Responsive for mobile, tablet and laptop.
 
 ## Run
 
@@ -11,48 +11,27 @@ npm run dev
 
 Open http://localhost:5173
 
-## Routes
+## Pages
 
-| Route      | Screen                                   |
-|------------|------------------------------------------|
-| `/`        | Login – choose one of the 4 portals      |
-| `/shop`    | Customer ecommerce website               |
-| `/admin`   | Super Admin panel with Order / Product / Billing tally |
-| `/app`     | Customer mobile app (phone frame on desktop, full screen on mobile) |
-| `/partner` | Partnership app for partner store owners |
+| Route          | Page |
+|----------------|------|
+| `/`            | Home + shop (hero, category index, new arrivals, all products, cake demos, how to order, visit store) |
+| `/product/:id` | Product detail (options, quantity, demo video, related products) |
+| `/login`       | Sign in / Create account |
 
-The animated intro (splash) plays once per browser session. To see it again, open a new tab or run `sessionStorage.clear()` in the console.
+## Animations
 
-## Libraries
+- **Intro**: plays once per browser session when the site first opens (wordmark rises, panel lifts away)
+- **Scroll**: headlines rise line by line, images unmask with light parallax, the About paragraph lights up word by word as you scroll, and on laptop the New Arrivals section pins and scrolls sideways
+- **Hover**: category list shows a floating image on laptop, product images zoom, buttons fill, links underline
+- **Header** hides when scrolling down and returns when scrolling up, with a thin scroll-progress line on top
 
-- **framer-motion**: splash, page transitions, scroll reveal, hover/tap effects, layout animations
-- **recharts**: tally charts (bar, stacked bar, donut, area, composed)
-- **react-router-dom**: routing between portals
-- **lucide-react**: icons
+## Data
 
-## Folder structure
+- `src/data/products.js`: all 46 products. Stock is real; **prices are sample**.
+- `src/data/videos.js`: cake demo videos. Set `src` to the uploaded MP4 URL; until then the poster shows.
+- Login is a prototype. Connect it to the backend in `src/pages/Login.jsx` (`submit`).
 
-```
-src/
-  App.jsx                 routes + splash
-  context/CartContext.jsx shared cart (website + app)
-  data/products.js        all 46 products (stock = real, price = SAMPLE)
-  data/videos.js          demo videos + cart → video suggestion logic
-  data/tally.js           SAMPLE tally numbers (replace with API)
-  components/             Logo, Splash, Reveal (scroll animations), ProductCard, VideoModal, PhoneFrame
-  pages/Login.jsx
-  pages/shop/Shop.jsx
-  pages/admin/Admin.jsx
-  pages/app/CustomerApp.jsx
-  pages/partner/PartnerApp.jsx
-public/products/          product photos (46)
-```
+## Deploy
 
-## To replace before going live
-
-- **Prices** in `src/data/products.js` are sample rates.
-- **Tally numbers** in `src/data/tally.js` are sample. Connect them to the backend API.
-- **Logo**: `src/components/Logo.jsx` draws a brand mark. Put the official transparent logo in `public/logo.png` and use `<img src="/logo.png" />`.
-- **Videos**: set `src` in `src/data/videos.js` to the uploaded MP4 URLs. The admin "Upload" form checks the 2-minute limit.
-- **To confirm**: product #44 (steel round cup with pin) name and stock, and product #46 (mini chocolate mould) stock.
-- **Login** is a prototype: any details work.
+`vercel.json` (Vercel) and `public/_redirects` (Netlify) are included so routes like `/product/5` work after refresh.

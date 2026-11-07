@@ -1,0 +1,8 @@
+.intro { position: fixed; inset: 0; z-index: 1000; background: var(--beige); display: grid; place-items: center; cursor: pointer; padding: var(--pad); }
+.intro-inner { width: min(760px, 100%); }
+.intro-word { margin: 0; font-size: clamp(56px, 13vw, 168px); line-height: 0.9; display: flex; justify-content: center; }
+.intro-mask { display: inline-block; overflow: hidden; padding-bottom: 0.08em; }
+.intro-mask > span { display: inline-block; }
+.intro-rule { height: 1px; background: var(--ink); margin: 22px 0 14px; transform-origin: left; }
+.intro-sub { display: flex; justify-content: space-between; gap: 12px; margin: 0; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
+@media (max-width: 560px) { .intro-sub span:last-child { display: none; } }

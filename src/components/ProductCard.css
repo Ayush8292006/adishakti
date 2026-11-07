@@ -1,61 +1,38 @@
-.pcard {
-  background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
-  display: flex; flex-direction: column;
-  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.4s;
-}
-.pcard:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: transparent; }
-.pcard-media { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: var(--cream-2); }
-.pcard-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s var(--ease), filter 0.6s; }
-.pcard:hover .pcard-media img { transform: scale(1.09); filter: saturate(1.1); }
-.pcard-badges { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-.pbadge { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; }
-.pbadge.new { background: var(--pink-600); color: #fff; }
-.pbadge.low { position: absolute; left: 12px; bottom: 12px; background: #fff4d6; color: #6b4a00; transition: opacity 0.3s; }
-.pcard:hover .pbadge.low { opacity: 0; }
-.pcard-like { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, 0.92); color: var(--choco-700); display: grid; place-items: center; box-shadow: var(--shadow-sm); transition: color 0.25s, transform 0.3s var(--ease); }
-.pcard-like:hover { transform: scale(1.1); color: var(--pink-600); }
-.pcard-like.on { color: var(--pink-600); }
-.pcard-quick {
-  position: absolute; left: 12px; right: 12px; bottom: 12px; height: 46px; border-radius: 14px; border: 0;
-  background: rgba(43, 24, 16, 0.92); color: #fff; font-weight: 600; font-size: 14px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  transform: translateY(140%); transition: transform 0.45s var(--ease), background 0.3s;
-  backdrop-filter: blur(6px);
-}
-.pcard:hover .pcard-quick, .pcard-quick:focus-visible { transform: translateY(0); }
-.pcard-quick:hover { background: var(--pink-600); }
-.pcard-body { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-.pcard-cat { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pink-700); }
-.pcard-body h3 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.35; color: var(--text); }
-.pcard-var { font-size: 13px; color: var(--muted); }
-.pcard-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; }
-.pcard-price { font-size: 22px; font-weight: 700; color: var(--choco-800); }
-.pcard-price small { font-family: var(--font-body); font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
-.pcard-add {
-  width: 46px; height: 46px; border-radius: 14px; border: 0; background: var(--choco-700); color: #fff;
-  display: grid; place-items: center; transition: background 0.3s, transform 0.3s var(--ease);
-}
-.pcard-add:hover { background: var(--pink-600); transform: rotate(90deg); }
-.pcard-add.done { background: #1e7a46; }
+.pc { display: flex; flex-direction: column; min-width: 0; }
+.pc-media { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--beige); }
+.pc-media > a { display: block; width: 100%; height: 100%; }
+.pc-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+.pc:hover .pc-media img { transform: scale(1.06); }
+.pc-tags { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; pointer-events: none; }
+.pc-tags span { background: var(--paper); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 8px; }
+.pc-tags span.low { background: var(--ink); color: var(--paper); }
 
-/* touch screens: no hover-only quick add, no lift */
-@media (hover: none) {
-  .pcard-quick { display: none; }
-  .pcard:hover { transform: none; box-shadow: none; border-color: var(--line); }
-  .pcard:hover .pcard-media img { transform: none; }
+.pc-add {
+  position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0;
+  background: var(--ink); color: var(--paper); font-size: 13px; font-weight: 500; letter-spacing: 0.04em;
+  transition: background 0.3s, transform 0.5s var(--ease), opacity 0.4s;
 }
-@media (max-width: 639px) {
-  .pcard { border-radius: 18px; }
-  .pcard-badges { top: 8px; left: 8px; gap: 4px; }
-  .pbadge { font-size: 10px; padding: 4px 8px; }
-  .pbadge.low { left: 8px; bottom: 8px; }
-  .pcard-like { width: 36px; height: 36px; top: 6px; right: 6px; }
-  .pcard-body { padding: 10px 10px 12px; gap: 4px; }
-  .pcard-cat { font-size: 10px; letter-spacing: 0.06em; }
-  .pcard-body h3 { font-size: 13px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 34px; }
-  .pcard-var { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pcard-foot { padding-top: 6px; }
-  .pcard-price { font-size: 17px; }
-  .pcard-price small { display: none; }
-  .pcard-add { width: 44px; height: 44px; border-radius: 12px; }
+.pc-add.done { background: var(--accent); }
+.pc-add-text { display: none; }
+
+@media (hover: hover) and (min-width: 768px) {
+  .pc-add { left: 10px; right: 10px; bottom: 10px; width: auto; border-radius: 0; transform: translateY(14px); opacity: 0; }
+  .pc:hover .pc-add, .pc-add:focus-visible { transform: none; opacity: 1; }
+  .pc-add-text { display: inline; }
+}
+
+.pc-info { display: flex; flex-direction: column; gap: 3px; padding-top: 14px; text-decoration: none; }
+.pc-cat { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.pc-info h3 { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.35; }
+.pc-info:hover h3 { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.pc-price { font-size: 15px; }
+.pc-price small { color: var(--muted); font-size: 12px; }
+
+@media (max-width: 640px) {
+  .pc-info { padding-top: 10px; }
+  .pc-info h3 { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pc-cat { font-size: 10px; }
+  .pc-price { font-size: 14px; }
+  .pc-tags span { font-size: 10px; padding: 4px 6px; }
 }
