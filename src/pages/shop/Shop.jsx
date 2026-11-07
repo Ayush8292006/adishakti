@@ -89,7 +89,7 @@ export default function Shop() {
           <nav className="shop-nav" aria-label="Main">
             <a href="#shop">Shop</a>
             <a href="#videos">Cake Demos</a>
-            <a href="#partners">Partner Stores</a>
+            <a href="#how">How to order</a>
           </nav>
           <div className="shop-actions">
             <Link to="/" className="icon-btn desk-only" title="All portals" aria-label="All portals"><LogOut size={18} /></Link>
@@ -108,7 +108,7 @@ export default function Shop() {
           {menuOpen && (
             <motion.nav className="mob-menu" aria-label="Mobile" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
               <div className="container">
-                {[['#shop', 'Shop all products'], ['#videos', 'Cake demo videos'], ['#partners', 'Partner stores']].map(([h, l], i) => (
+                {[['#shop', 'Shop all products'], ['#videos', 'Cake demo videos'], ['#how', 'How to order']].map(([h, l], i) => (
                   <motion.a key={h} href={h} onClick={() => setMenuOpen(false)} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.05 + i * 0.05 }}>
                     {l} <ArrowRight size={16} />
                   </motion.a>
@@ -153,8 +153,12 @@ export default function Shop() {
           <motion.figure className="hero-card big"
             initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
             <img src="/products/ginkgo-topper.jpg" alt="Gold ginkgo leaf cake topper" />
-            <figcaption>Gold Ginkgo Topper · {formatINR(149)}</figcaption>
           </motion.figure>
+          <motion.div className="hero-pick" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.6 }}>
+            <img src="/products/ginkgo-topper.jpg" alt="" />
+            <div><small>Bestseller</small><b>Gold Ginkgo Topper</b><span>{formatINR(149)}</span></div>
+            <button className="hero-pick-add" onClick={() => { cart.add(1); onAdded(PRODUCTS[0]); }} aria-label="Add Gold Ginkgo Topper to cart"><Plus size={18} /></button>
+          </motion.div>
           <motion.figure className="hero-card s1"
             initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.4 }}>
             <img src="/products/rose-mould.jpg" alt="Rose and sunflower chocolate mould" />
@@ -192,8 +196,8 @@ export default function Shop() {
           <h2 className="display">Shop by what you’re making</h2>
         </Reveal>
         <Stagger className="cat-grid">
-          {CATEGORIES.map((c) => (
-            <StaggerItem key={c}>
+          {CATEGORIES.map((c, i) => (
+            <StaggerItem key={c} className={i === 0 ? 'cat-big' : i === CATEGORIES.length - 1 ? 'cat-last' : ''}>
               <button className="cat-card" onClick={() => { setCat(c); document.getElementById('shop').scrollIntoView({ behavior: 'smooth' }); }}>
                 <img src={CAT_IMG[c]} alt="" />
                 <span className="cat-card-label">{c}<small>{PRODUCTS.filter((p) => p.category === c).length} products</small></span>
@@ -287,24 +291,40 @@ export default function Shop() {
         </div>
       </section>
 
-      {/* PARTNERS */}
-      <section id="partners" className="container section">
-        <div className="partner-band">
-          <Reveal from="left" className="partner-copy">
-            <p className="eyebrow">Partner stores</p>
-            <h2 className="display">More stores, one checkout.</h2>
-            <p className="muted">Products from verified partner bakery stores appear alongside ours with a “Partner store” badge. Adi Shakti handles the order and the bill.</p>
-            <Link to="/partner" className="btn btn-dark">Become a partner <ArrowRight size={18} /></Link>
-          </Reveal>
-          <Stagger className="partner-imgs">
-            {PRODUCTS.filter((p) => p.seller !== 'Adi Shakti').map((p) => (
-              <StaggerItem key={p.id} className="partner-img">
-                <img src={p.img} alt={p.name} />
-                <span>Partner store</span>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </div>
+      {/* HOW TO ORDER */}
+      <section id="how" className="container section">
+        <Reveal className="section-head center">
+          <p className="eyebrow">How to order</p>
+          <h2 className="display">From cart to cake in three steps</h2>
+        </Reveal>
+        <Stagger className="how-grid">
+          {[
+            { n: '01', icon: ShoppingBag, t: 'Pick your tools', d: 'Browse moulds, toppers, nozzles and packing. Bakeries get wholesale rates.' },
+            { n: '02', icon: Video, t: 'Watch the demo', d: 'Your cart suggests a 2‑minute cake demo that uses the products you picked.' },
+            { n: '03', icon: Truck, t: 'Delivery or pick-up', d: 'Get it delivered in Bengaluru or collect it from our Gandhi Bazaar store.' },
+          ].map(({ n, icon: I, t, d }) => (
+            <StaggerItem key={n} className="how-card">
+              <span className="how-num display">{n}</span>
+              <span className="how-ico"><I size={22} /></span>
+              <h3>{t}</h3>
+              <p>{d}</p>
+            </StaggerItem>
+          ))}
+        </Stagger>
+        <Reveal className="store-card" from="zoom">
+          <div className="store-imgs">
+            {['nozzle-set', 'rose-mould', 'mini-crown'].map((x) => <img key={x} src={`/products/${x}.jpg`} alt="" />)}
+          </div>
+          <div className="store-info">
+            <p className="eyebrow">Visit the store</p>
+            <h3 className="display">Adi Shakti Trader, Gandhi Bazaar</h3>
+            <p className="muted"><MapPin size={15} /> #39, Ground Floor, WAT Street, Beside Domino’s Pizza, Basavanagudi, Bengaluru 560004</p>
+            <div className="store-actions">
+              <a className="btn btn-dark btn-sm" href="tel:+918041486443"><Phone size={16} /> 080-41486443</a>
+              <a className="btn btn-outline btn-sm" href="https://maps.google.com/?q=WAT+Street+Gandhi+Bazaar+Basavanagudi+Bengaluru" target="_blank" rel="noreferrer">Get directions</a>
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* CTA */}
@@ -321,6 +341,7 @@ export default function Shop() {
             <Logo light size={44} sub="BAKING TOOLS & ACCESSORIES" />
             <p><MapPin size={15} /> #39, Ground Floor, WAT Street, Beside Domino’s Pizza, Gandhi Bazaar, Basavanagudi, Bengaluru 560004</p>
           </div>
+          <div><b>Shop</b><p className="footer-links">{CATEGORIES.slice(0, 5).map((c) => <a key={c} href="#shop" onClick={() => setCat(c)}>{c}</a>)}</p></div>
           <div><b>Order booking</b><p>080-41486443<br />7996 222111</p></div>
           <div><b>Contact</b><p>Mahesh · 9242 222111<br />Rani Mahesh · 8792 222111</p></div>
         </div>
