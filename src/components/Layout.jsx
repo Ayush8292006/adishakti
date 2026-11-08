@@ -1,191 +1,135 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent } from 'framer-motion';
-import { Search, ShoppingBag, User, Menu, X, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, ShoppingCart, ChevronDown, ChevronRight, User, MapPin, ArrowLeft } from 'lucide-react';
 import { useShop } from '../context/ShopContext.jsx';
-import { PRODUCTS, formatINR } from '../data/products.js';
+import { CATEGORIES, formatINR, catSlug } from '../data/products.js';
 import CartDrawer from './CartDrawer.jsx';
 import VideoModal from './VideoModal.jsx';
+import LoginModal from './LoginModal.jsx';
 import './Layout.css';
 
-const NAV = [
-  { href: '/#shop', label: 'Shop' },
-  { href: '/#categories', label: 'Categories' },
-  { href: '/#demos', label: 'Cake Demos' },
-  { href: '/#visit', label: 'Visit Store' },
-];
+const HINTS = ['“moulds”', '“cake toppers”', '“piping nozzles”', '“cake base”', '“gold foil”', '“ribbons”'];
 
-export function Wordmark({ light = false }) {
+export function Logo() {
   return (
-    <span className={`wordmark ${light ? 'light' : ''}`}>
-      <span className="serif wm-name">Adi Shakti</span>
-      <span className="wm-sub">Trader</span>
+    <span className="logo">
+      <span className="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="22" height="22"><path d="M10 18c-3 0-4-5 0-6 0-4 6-5 8-2 2-3 8-2 8 2 4 1 3 6 0 6v4H10z" fill="none" stroke="#F6C9D7" strokeWidth="2.4" strokeLinejoin="round" /><rect x="10" y="25" width="16" height="4" rx="2" fill="#F6C9D7" /></svg>
+      </span>
+      <span className="logo-text"><b>Adi Shakti</b><small>baking tools</small></span>
     </span>
   );
 }
 
-function SearchPanel({ open, onClose }) {
-  const [q, setQ] = useState('');
+function SearchBar() {
   const navigate = useNavigate();
-  const results = useMemo(() => (q.trim() ? PRODUCTS.filter((p) => p.name.toLowerCase().includes(q.toLowerCase())).slice(0, 6) : []), [q]);
-  useEffect(() => { if (!open) setQ(''); }, [open]);
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(pathname === '/search' ? params.get('q') || '' : '');
+  const [hint, setHint] = useState(0);
+  useEffect(() => { const t = setInterval(() => setHint((h) => (h + 1) % HINTS.length), 2200); return () => clearInterval(t); }, []);
+  useEffect(() => { if (pathname !== '/search') setQ(''); }, [pathname]);
+
+  const onChange = (v) => {
+    setQ(v);
+    navigate(v ? `/search?q=${encodeURIComponent(v)}` : '/search', { replace: pathname === '/search' });
+  };
+
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div className="search-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-          <motion.div className="search-box" onClick={(e) => e.stopPropagation()}
-            initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
-            <div className="wrap">
-              <label className="search-field">
-                <Search size={22} strokeWidth={1.5} />
-                <span className="sr-only">Search products</span>
-                <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search moulds, toppers, nozzles…" />
-                <button className="icon-btn" onClick={onClose} aria-label="Close search"><X size={20} strokeWidth={1.5} /></button>
-              </label>
-              {q && (
-                <ul className="search-results">
-                  {results.length === 0 && <li className="muted">No products found for “{q}”.</li>}
-                  {results.map((p, i) => (
-                    <motion.li key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                      <button onClick={() => { onClose(); navigate(`/product/${p.id}`); }}>
-                        <img src={p.img} alt="" />
-                        <span><b>{p.name}</b><small>{p.category}</small></span>
-                        <span className="sr-price">{formatINR(p.price)}</span>
-                      </button>
-                    </motion.li>
-                  ))}
-                </ul>
-              )}
-              {!q && (
-                <div className="search-hints">
-                  <span className="label">Popular</span>
-                  {['Mould', 'Topper', 'Nozzle', 'Cake base', 'Ribbon'].map((h) => <button key={h} onClick={() => setQ(h)}>{h}</button>)}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </motion.div>
+    <label className="searchbar">
+      <Search size={18} />
+      <span className="sr-only">Search products</span>
+      <input value={q} onChange={(e) => onChange(e.target.value)} onFocus={() => pathname !== '/search' && navigate('/search')} />
+      {!q && (
+        <span className="search-ph" aria-hidden="true">
+          Search
+          <AnimatePresence mode="wait">
+            <motion.span key={hint} initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.3 }}>{HINTS[hint]}</motion.span>
+          </AnimatePresence>
+        </span>
       )}
-    </AnimatePresence>
+    </label>
   );
 }
 
 export default function Layout() {
   const shop = useShop();
-  const { pathname, hash } = useLocation();
-  const [menu, setMenu] = useState(false);
-  const [search, setSearch] = useState(false);
-  const [hidden, setHidden] = useState(false);
-  const [solid, setSolid] = useState(false);
-  const { scrollY, scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30 });
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const isHome = pathname === '/';
 
-  // hide header on scroll down, show on scroll up
-  useMotionValueEvent(scrollY, 'change', (y) => {
-    const prev = scrollY.getPrevious() ?? 0;
-    setSolid(y > 10);
-    setHidden(y > 240 && y > prev && !menu);
-  });
-
-  useEffect(() => { setMenu(false); }, [pathname, hash]);
   useEffect(() => {
-    if (hash) { const el = document.querySelector(hash); if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 60); }
-  }, [hash, pathname]);
-  useEffect(() => {
-    document.body.style.overflow = menu || search || shop.cartOpen || shop.video ? 'hidden' : '';
-  }, [menu, search, shop.cartOpen, shop.video]);
+    document.body.style.overflow = shop.cartOpen || shop.video || shop.loginOpen ? 'hidden' : '';
+  }, [shop.cartOpen, shop.video, shop.loginOpen]);
 
   return (
     <>
-      <motion.div className="progress" style={{ scaleX: progress }} />
-      <div className="announce">
-        <span>Wholesale rates for bakeries &amp; home bakers</span>
-        <span className="announce-dot" aria-hidden="true" />
-        <a href="tel:+917996222111">Order booking 7996 222111</a>
-      </div>
-
-      <motion.header className={`site-header ${solid ? 'solid' : ''}`} animate={{ y: hidden ? '-100%' : '0%' }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
-        <div className="wrap header-row">
-          <nav className="nav-left" aria-label="Main">
-            {NAV.map((n) => <Link key={n.href} to={n.href} className="nav-link">{n.label}</Link>)}
-          </nav>
-          <button className="icon-btn menu-btn" onClick={() => setMenu(true)} aria-label="Open menu"><Menu size={22} strokeWidth={1.5} /></button>
-          <Link to="/" className="brand" aria-label="Adi Shakti Trader home"><Wordmark /></Link>
-          <div className="nav-right">
-            <button className="icon-btn" onClick={() => setSearch(true)} aria-label="Search"><Search size={20} strokeWidth={1.5} /></button>
-            <Link to="/login" className="icon-btn acct" aria-label={shop.user ? 'Account' : 'Sign in'}><User size={20} strokeWidth={1.5} /></Link>
-            <button className="cart-pill" onClick={() => shop.setCartOpen(true)} aria-label={`Cart, ${shop.count} items`}>
-              <ShoppingBag size={19} strokeWidth={1.5} />
-              <span className="cart-label">Cart</span>
-              <motion.span key={shop.count} className="cart-n" initial={{ y: -8, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>{shop.count}</motion.span>
-            </button>
-          </div>
+      <header className="hdr">
+        <div className="wrap hdr-row">
+          {!isHome && <button className="icon-btn hdr-back" onClick={() => navigate(-1)} aria-label="Go back"><ArrowLeft size={20} /></button>}
+          <Link to="/" className="hdr-logo" aria-label="Adi Shakti Trader home"><Logo /></Link>
+          <button className="hdr-loc" aria-label="Delivery location: Basavanagudi, Bengaluru">
+            <b>Delivery in Bengaluru</b>
+            <span><MapPin size={12} /> Basavanagudi, 560004 <ChevronDown size={14} /></span>
+          </button>
+          <div className="hdr-search"><SearchBar /></div>
+          <button className="hdr-login" onClick={() => shop.setLoginOpen(true)}>
+            <User size={18} className="hdr-login-ico" />
+            <span>{shop.user ? `Hi, ${shop.user.name.split(' ')[0]}` : 'Login'}</span>
+          </button>
+          <motion.button key={shop.bump} className={`hdr-cart ${shop.count ? 'full' : ''}`} onClick={() => shop.setCartOpen(true)}
+            animate={shop.bump ? { scale: [1, 1.06, 1] } : {}} transition={{ duration: 0.35 }} aria-label={`Cart, ${shop.count} items`}>
+            <ShoppingCart size={20} />
+            {shop.count ? <span className="hdr-cart-txt"><b>{shop.count} {shop.count === 1 ? 'item' : 'items'}</b><small>{formatINR(shop.subtotal)}</small></span> : <span className="hdr-cart-txt"><b>My Cart</b></span>}
+          </motion.button>
         </div>
-      </motion.header>
-
-      {/* mobile menu */}
-      <AnimatePresence>
-        {menu && (
-          <motion.div className="menu-panel" initial={{ clipPath: 'inset(0 0 100% 0)' }} animate={{ clipPath: 'inset(0 0 0% 0)' }} exit={{ clipPath: 'inset(0 0 100% 0)' }} transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}>
-            <div className="menu-top wrap">
-              <Wordmark />
-              <button className="icon-btn" onClick={() => setMenu(false)} aria-label="Close menu"><X size={24} strokeWidth={1.5} /></button>
-            </div>
-            <nav className="menu-links wrap" aria-label="Mobile">
-              {[...NAV, { href: '/login', label: 'Sign in' }].map((n, i) => (
-                <motion.div key={n.href} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
-                  <Link to={n.href} onClick={() => setMenu(false)}>
-                    <span className="serif">{n.label}</span><ArrowUpRight size={22} strokeWidth={1.25} />
-                  </Link>
-                </motion.div>
-              ))}
-            </nav>
-            <motion.div className="menu-foot wrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-              <span className="label">Store</span>
-              <p>#39, WAT Street, Gandhi Bazaar, Basavanagudi, Bengaluru 560004</p>
-              <a href="tel:+918041486443">080-41486443</a>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <SearchPanel open={search} onClose={() => setSearch(false)} />
+      </header>
 
       <Outlet />
 
-      <footer className="site-footer">
+      <footer className="ftr">
         <div className="wrap">
-          <div className="footer-cta">
-            <h2 className="serif">Running a bakery? <em>Ask for wholesale rates.</em></h2>
-            <a className="btn btn-solid" href="tel:+917996222111">Call 7996 222111 <ArrowRight size={16} className="arrow" /></a>
+          <div className="ftr-top">
+            <div className="ftr-brand">
+              <Logo />
+              <p className="muted">Baking tools &amp; accessories for home bakers and bakeries. Choice of Home Bakers.</p>
+              <p className="ftr-addr"><MapPin size={15} /> #39, Ground Floor, WAT Street, Beside Domino’s Pizza, Gandhi Bazaar, Basavanagudi, Bengaluru 560004</p>
+            </div>
+            <div className="ftr-cats">
+              <h3>Categories</h3>
+              <div>{CATEGORIES.map((c) => <Link key={c} to={`/category/${catSlug(c)}`}>{c}</Link>)}<Link to="/category/new-arrivals">New Arrivals</Link></div>
+            </div>
+            <div className="ftr-contact">
+              <h3>Order booking</h3>
+              <a href="tel:+918041486443">080-41486443</a>
+              <a href="tel:+917996222111">7996 222111</a>
+              <h3>Contact</h3>
+              <a href="tel:+919242222111">Mahesh · 9242 222111</a>
+              <a href="tel:+918792222111">Rani Mahesh · 8792 222111</a>
+            </div>
           </div>
-          <div className="footer-grid">
-            <div className="f-brand"><Wordmark /><p className="muted">Baking tools &amp; accessories. Choice of home bakers.</p></div>
-            <div><span className="label">Shop</span><Link to="/#shop">All products</Link><Link to="/#categories">Categories</Link><Link to="/#new">New arrivals</Link></div>
-            <div><span className="label">Help</span><Link to="/#demos">Cake demos</Link><Link to="/#how">How to order</Link><Link to="/login">My account</Link></div>
-            <div><span className="label">Store</span><p>#39, Ground Floor, WAT Street, Beside Domino’s Pizza, Gandhi Bazaar, Basavanagudi, Bengaluru 560004</p></div>
-            <div><span className="label">Contact</span><a href="tel:+918041486443">080-41486443</a><a href="tel:+917996222111">7996 222111</a><a href="tel:+919242222111">Mahesh · 9242 222111</a><a href="tel:+918792222111">Rani Mahesh · 8792 222111</a></div>
-          </div>
-          <div className="footer-bottom">
-            <span>© {new Date().getFullYear()} Adi Shakti Trader</span>
-            <button className="link" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top</button>
-          </div>
+          <div className="ftr-bottom">© {new Date().getFullYear()} Adi Shakti Trader · Bengaluru</div>
         </div>
-        <div className="footer-giant serif" aria-hidden="true">Adi Shakti</div>
       </footer>
+
+      {/* mobile floating cart bar */}
+      <AnimatePresence>
+        {shop.count > 0 && !shop.cartOpen && (
+          <motion.button className="cartbar" onClick={() => shop.setCartOpen(true)}
+            initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} transition={{ type: 'spring', stiffness: 320, damping: 30 }}>
+            <span className="cartbar-imgs">
+              {shop.items.slice(-3).map(({ product: p }) => <img key={p.id} src={p.img} alt="" />)}
+            </span>
+            <span className="cartbar-txt"><b>{shop.count} {shop.count === 1 ? 'item' : 'items'}</b><small>{formatINR(shop.subtotal)}</small></span>
+            <span className="cartbar-cta">View cart <ChevronRight size={18} /></span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <CartDrawer />
       <VideoModal />
-
-      <AnimatePresence>
-        {shop.toast && (
-          <motion.div className="toast" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 30, opacity: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
-            <img src={shop.toast.img} alt="" />
-            <span><small className="label">Added to cart</small><b>{shop.toast.name}</b></span>
-            <button className="link" onClick={() => shop.setCartOpen(true)}>View</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <LoginModal />
     </>
   );
 }

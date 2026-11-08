@@ -74,3 +74,16 @@ export const isLowStock = (p) => p.stock != null && p.stock <= 5;
 export const findProduct = (id) => PRODUCTS.find((p) => p.id === id);
 
 export const formatINR = (n) => '₹' + Number(n).toLocaleString('en-IN');
+
+export const catSlug = (c) => c.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+export const catFromSlug = (s) => CATEGORIES.find((c) => catSlug(c) === s) || null;
+
+export const CAT_IMG = {
+  'Cake Toppers': '/products/filigree-butterfly.jpg',
+  'Silicone Moulds': '/products/rose-mould.jpg',
+  'Baking Tools': '/products/nozzle-set.jpg',
+  'Cake Base & Boards': '/products/mdf-cake-board.jpg',
+  'Packing Materials': '/products/gold-foil.jpg',
+  'Decoration Ribbons': '/products/diamond-mesh.jpg',
+  'Cake Stands': '/products/acrylic-stand.jpg',
+};

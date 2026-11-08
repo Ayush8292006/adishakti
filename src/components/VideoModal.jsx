@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Plus } from 'lucide-react';
+import { X, Play } from 'lucide-react';
 import { useShop } from '../context/ShopContext.jsx';
 import { findProduct, formatINR } from '../data/products.js';
+import AddButton from './AddButton.jsx';
 import './VideoModal.css';
 
-// Plays an admin-uploaded demo (video.src). Until a file exists the poster shows.
+// Plays the admin-uploaded demo (video.src). Until uploaded, the poster shows.
 export default function VideoModal() {
   const shop = useShop();
   const v = shop.video;
@@ -14,31 +15,30 @@ export default function VideoModal() {
       {v && (
         <motion.div className="vm-bg" onClick={close} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div className="vm" role="dialog" aria-modal="true" aria-label={v.title} onClick={(e) => e.stopPropagation()}
-            initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 30, opacity: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
+            initial={{ y: 40, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 40, opacity: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
             <div className="vm-player">
               {v.src ? <video src={v.src} poster={v.poster} controls autoPlay playsInline /> : (
                 <>
                   <img src={v.poster} alt="" />
-                  <div className="vm-ph"><span className="vm-play"><Play size={24} fill="currentColor" /></span><p>Demo video ({v.duration}) plays here once uploaded</p></div>
+                  <div className="vm-ph"><span><Play size={26} fill="currentColor" /></span><p>Demo video ({v.duration}) plays here once uploaded</p></div>
                 </>
               )}
               <button className="icon-btn vm-x" onClick={close} aria-label="Close video"><X size={20} /></button>
             </div>
             <div className="vm-body">
-              <div><span className="label">Cake demo · {v.duration}</span><h3 className="serif">{v.title}</h3></div>
-              <div className="vm-products">
-                <span className="label">Used in this demo</span>
-                {v.productIds.map((id) => {
-                  const p = findProduct(id);
-                  return (
-                    <div key={id} className="vm-p">
-                      <img src={p.img} alt="" />
-                      <span><b>{p.name}</b><small>{formatINR(p.price)}</small></span>
-                      <button className="icon-btn" onClick={() => shop.add(id)} aria-label={`Add ${p.name}`}><Plus size={18} /></button>
-                    </div>
-                  );
-                })}
-              </div>
+              <small className="vm-tag">CAKE DEMO · {v.duration}</small>
+              <h3>{v.title}</h3>
+              <p className="muted">Products used in this video</p>
+              {v.productIds.map((id) => {
+                const p = findProduct(id);
+                return (
+                  <div key={id} className="vm-p">
+                    <img src={p.img} alt="" />
+                    <span><b>{p.name}</b><small>{formatINR(p.price)}</small></span>
+                    <AddButton id={id} name={p.name} />
+                  </div>
+                );
+              })}
             </div>
           </motion.div>
         </motion.div>

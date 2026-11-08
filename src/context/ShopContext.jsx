@@ -7,14 +7,19 @@ export function ShopProvider({ children }) {
   const [lines, setLines] = useState({}); // { productId: qty }
   const [cartOpen, setCartOpen] = useState(false);
   const [video, setVideo] = useState(null);
-  const [toast, setToast] = useState(null);
   const [user, setUser] = useState(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [bump, setBump] = useState(0);
   const t = useRef(null);
 
-  const notify = useCallback((product) => {
-    setToast(product);
-    clearTimeout(t.current);
-    t.current = setTimeout(() => setToast(null), 2400);
+  const change = useCallback((id, delta) => {
+    setLines((p) => {
+      const next = { ...p };
+      const q = (next[id] || 0) + delta;
+      if (q <= 0) delete next[id]; else next[id] = q;
+      return next;
+    });
+    if (delta > 0) { clearTimeout(t.current); setBump((b) => b + 1); }
   }, []);
 
   const value = useMemo(() => {
@@ -25,21 +30,17 @@ export function ShopProvider({ children }) {
       items,
       count: items.reduce((s, l) => s + l.qty, 0),
       subtotal: items.reduce((s, l) => s + l.qty * l.product.price, 0),
-      add: (id, n = 1) => {
-        setLines((p) => ({ ...p, [id]: (p[id] || 0) + n }));
-        notify(findProduct(id));
-      },
-      setQty: (id, qty) => setLines((p) => {
-        const next = { ...p };
-        if (qty <= 0) delete next[id]; else next[id] = qty;
-        return next;
-      }),
+      qtyOf: (id) => lines[id] || 0,
+      add: (id, n = 1) => change(id, n),
+      remove: (id) => change(id, -1),
+      setQty: (id, q) => setLines((p) => { const n = { ...p }; if (q <= 0) delete n[id]; else n[id] = q; return n; }),
+      bump,
       cartOpen, setCartOpen,
       video, setVideo,
-      toast,
       user, setUser,
+      loginOpen, setLoginOpen,
     };
-  }, [lines, cartOpen, video, toast, user, notify]);
+  }, [lines, cartOpen, video, user, loginOpen, bump, change]);
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 }

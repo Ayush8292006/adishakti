@@ -4,12 +4,19 @@ import { AnimatePresence } from 'framer-motion';
 import Intro from './components/Intro.jsx';
 import Layout from './components/Layout.jsx';
 import Home from './pages/Home.jsx';
+import Category from './pages/Category.jsx';
 import Product from './pages/Product.jsx';
-import Login from './pages/Login.jsx';
+import { useShop } from './context/ShopContext.jsx';
+
+// /login opens the login popup on the home page
+function LoginRoute() {
+  const shop = useShop();
+  useEffect(() => { shop.setLoginOpen(true); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return <Navigate to="/" replace />;
+}
 
 export default function App() {
   const location = useLocation();
-  // Intro plays once per browser session, on the very first open
   const [intro, setIntro] = useState(() => !sessionStorage.getItem('ast-intro'));
   const done = () => { sessionStorage.setItem('ast-intro', '1'); setIntro(false); };
 
@@ -18,16 +25,16 @@ export default function App() {
   return (
     <>
       <AnimatePresence>{intro && <Intro key="intro" onDone={done} />}</AnimatePresence>
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/login" element={<Login />} />
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home ready={!intro} />} />
-            <Route path="/product/:id" element={<Product />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AnimatePresence>
+      <Routes location={location}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home ready={!intro} />} />
+          <Route path="/category/:slug" element={<Category />} />
+          <Route path="/search" element={<Category />} />
+          <Route path="/product/:id" element={<Product />} />
+          <Route path="/login" element={<LoginRoute />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   );
 }

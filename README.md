@@ -1,6 +1,6 @@
 # Adi Shakti Trader — Customer Website
 
-React + Vite. White · beige · black editorial design with scroll animations. Responsive for mobile, tablet and laptop.
+React + Vite quick-shop website. Layout follows the popular quick-commerce pattern (search-first header, category tiles, product rows with ADD → − qty + stepper, floating cart bar on mobile) in Adi Shakti's own brand colours (chocolate brown, raspberry, cream).
 
 ## Run
 
@@ -9,29 +9,19 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173
-
 ## Pages
 
-| Route          | Page |
-|----------------|------|
-| `/`            | Home + shop (hero, category index, new arrivals, all products, cake demos, how to order, visit store) |
-| `/product/:id` | Product detail (options, quantity, demo video, related products) |
-| `/login`       | Sign in / Create account |
+| Route | Page |
+|---|---|
+| `/` | Home: banner, promo cards, category tiles, product rows, demo videos |
+| `/category/:slug` | Category page with side menu and product grid (`/category/all`, `/category/new-arrivals`, `/category/cake-toppers`, ...) |
+| `/search?q=` | Live search results (type in the header search) |
+| `/product/:id` | Product page: options, ADD stepper, demo video, details, similar products |
+| `/login` | Opens the login popup (mobile number → OTP → name). Any 4-digit OTP works in the prototype |
 
-## Animations
+## Notes
 
-- **Intro**: plays once per browser session when the site first opens (wordmark rises, panel lifts away)
-- **Scroll**: headlines rise line by line, images unmask with light parallax, the About paragraph lights up word by word as you scroll, and on laptop the New Arrivals section pins and scrolls sideways
-- **Hover**: category list shows a floating image on laptop, product images zoom, buttons fill, links underline
-- **Header** hides when scrolling down and returns when scrolling up, with a thin scroll-progress line on top
-
-## Data
-
-- `src/data/products.js`: all 46 products. Stock is real; **prices are sample**.
-- `src/data/videos.js`: cake demo videos. Set `src` to the uploaded MP4 URL; until then the poster shows.
-- Login is a prototype. Connect it to the backend in `src/pages/Login.jsx` (`submit`).
-
-## Deploy
-
-`vercel.json` (Vercel) and `public/_redirects` (Netlify) are included so routes like `/product/5` work after refresh.
+- **Prices** in `src/data/products.js` are sample. Stock figures come from the store list.
+- **Videos**: set `src` in `src/data/videos.js` to the uploaded MP4 URLs.
+- **Cart** shows bill details and suggests a cake demo video based on the items in it.
+- `vercel.json` and `public/_redirects` are included so routes work after deploy and refresh.
