@@ -1,15 +1,97 @@
-.rail { margin-top: 28px; }
-.rail-box { position: relative; }
-.rail-track { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; margin-inline: calc(-1 * var(--pad)); padding: 4px var(--pad) 10px; }
-.rail-track::-webkit-scrollbar { display: none; }
-.rail-item { flex: 0 0 150px; scroll-snap-align: start; display: flex; }
-.rail-item > * { width: 100%; }
-.rail-arrow { display: none; }
-@media (min-width: 768px) {
-  .rail-item { flex-basis: 178px; }
-  .rail-track { gap: 16px; margin-inline: 0; padding-inline: 0; }
-  .rail-arrow { display: grid; place-items: center; position: absolute; top: 38%; z-index: 3; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--white); box-shadow: var(--shadow-lg); transition: transform 0.2s; }
-  .rail-arrow:hover { transform: scale(1.08); }
-  .rail-arrow.left { left: -16px; } .rail-arrow.right { right: -16px; }
+.rail {
+  margin-top: 36px;
 }
-@media (min-width: 1200px) { .rail-item { flex-basis: 190px; } }
+
+.rail-sub {
+  margin: 3px 0 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+.rail-box {
+  position: relative;
+}
+
+.rail-track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  margin-inline: calc(-1 * var(--pad));
+  padding: 6px var(--pad) 14px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rail-track::-webkit-scrollbar {
+  display: none;
+}
+
+.rail-item {
+  flex: 0 0 160px;
+  scroll-snap-align: start;
+  display: flex;
+}
+
+.rail-item > * {
+  width: 100%;
+}
+
+.rail-arrow {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .rail {
+    margin-top: 44px;
+  }
+
+  .rail-item {
+    flex-basis: 195px;
+  }
+
+  .rail-track {
+    gap: 18px;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  .rail-arrow {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 42%;
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: var(--white);
+    color: var(--brown-deep);
+    box-shadow: 0 6px 20px rgba(29, 19, 14, 0.15);
+    transition: all 0.22s var(--ease);
+    cursor: pointer;
+  }
+
+  .rail-arrow:hover {
+    transform: scale(1.1);
+    background: var(--brown);
+    color: #fff;
+    border-color: var(--brown);
+  }
+
+  .rail-arrow.left {
+    left: -20px;
+  }
+
+  .rail-arrow.right {
+    right: -20px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .rail-item {
+    flex-basis: 210px;
+  }
+}
