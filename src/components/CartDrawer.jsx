@@ -1,229 +1,73 @@
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  X, Play, ChevronRight, Store, ShoppingCart, ReceiptText,
-  Sparkles, MessageCircle, Truck
-} from 'lucide-react';
+import { X, Play, ShoppingBag, Minus, Plus, Trash2, Lock } from 'lucide-react';
 import { useShop } from '../context/ShopContext.jsx';
 import { formatINR } from '../data/products.js';
 import { suggestVideo } from '../data/videos.js';
-import AddButton from './AddButton.jsx';
 import './CartDrawer.css';
-
-const FREE_SHIP_THRESHOLD = 499;
 
 export default function CartDrawer() {
   const shop = useShop();
   const v = suggestVideo(shop.items);
   const close = () => shop.setCartOpen(false);
-  const proceed = () => {
-    if (!shop.user) shop.setLoginOpen(true);
-  };
-
-  const amountNeeded = Math.max(0, FREE_SHIP_THRESHOLD - shop.subtotal);
-  const progressPercent = Math.min(100, (shop.subtotal / FREE_SHIP_THRESHOLD) * 100);
-
-  // Generate WhatsApp order message
-  const generateWhatsAppOrder = () => {
-    const lines = shop.items.map(
-      ({ product: p, qty }) => `• ${p.name} (x${qty}) - ${formatINR(p.price * qty)}`
-    );
-    const text = `Hi Adi Shakti Trader! I would like to place an order from your website:\n\n${lines.join(
-      '\n'
-    )}\n\n*Total Amount:* ${formatINR(shop.subtotal)}\n\nPlease let me know the delivery confirmation.`;
-    return `https://wa.me/917996222111?text=${encodeURIComponent(text)}`;
-  };
+  const checkout = () => { if (!shop.user) shop.setLoginOpen(true); };
 
   return (
     <AnimatePresence>
       {shop.cartOpen && (
-        <motion.div
-          className="cd-bg"
-          onClick={close}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.aside
-            className="cd"
-            aria-label="My cart"
-            onClick={(e) => e.stopPropagation()}
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-          >
+        <motion.div className="cd-bg" onClick={close} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.aside className="cd" aria-label="Your cart" onClick={(e) => e.stopPropagation()}
+            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', stiffness: 320, damping: 36 }}>
             <header className="cd-head">
-              <div className="cd-head-title">
-                <h2>My Cart</h2>
-                <span className="cd-head-badge">
-                  {shop.count} {shop.count === 1 ? 'item' : 'items'}
-                </span>
-              </div>
-              <button className="icon-btn" onClick={close} aria-label="Close cart">
-                <X size={20} />
-              </button>
+              <h2>Your cart <span>({shop.count})</span></h2>
+              <button className="icon-btn" onClick={close} aria-label="Close cart"><X size={22} /></button>
             </header>
 
-            {/* Free Shipping Meter */}
-            {shop.items.length > 0 && (
-              <div className="cd-meter-box">
-                <div className="cd-meter-txt">
-                  <Truck size={15} className="cd-meter-ico" />
-                  {amountNeeded > 0 ? (
-                    <span>
-                      Add <b>{formatINR(amountNeeded)}</b> more for <strong>FREE Bengaluru Delivery</strong>
-                    </span>
-                  ) : (
-                    <span className="cd-meter-free">
-                      🎉 <strong>You unlocked FREE Bengaluru Delivery!</strong>
-                    </span>
-                  )}
-                </div>
-                <div className="cd-meter-bar">
-                  <div
-                    className="cd-meter-fill"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
+            {shop.items.length === 0 ? (
+              <div className="cd-empty">
+                <span><ShoppingBag size={34} /></span>
+                <h3>Your cart is empty</h3>
+                <p className="muted">Looks like you haven’t added anything yet.</p>
+                <Link to="/category/all" className="btn btn-brand" onClick={close}>Continue shopping</Link>
               </div>
-            )}
-
-            <div className="cd-body">
-              {shop.items.length === 0 ? (
-                <div className="cd-empty">
-                  <span className="cd-empty-ico">
-                    <ShoppingCart size={38} />
-                  </span>
-                  <h3>Your shopping cart is empty</h3>
-                  <p className="muted">
-                    Discover our collection of silicone moulds, cake toppers, piping nozzles, and packing materials.
-                  </p>
-                  <button className="btn btn-pink" onClick={close}>
-                    Browse Products
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="cd-card cd-ship">
-                    <span className="cd-ship-ico">
-                      <Store size={20} />
-                    </span>
-                    <div>
-                      <b>Same-Day Bengaluru Delivery &amp; Store Pickup</b>
-                      <small>Dispatched from Gandhi Bazaar store</small>
-                    </div>
-                  </div>
-
-                  <div className="cd-card">
-                    <AnimatePresence initial={false}>
-                      {shop.items.map(({ product: p, qty }) => (
-                        <motion.div
-                          key={p.id}
-                          className="cd-line"
-                          layout
-                          exit={{
-                            opacity: 0,
-                            height: 0,
-                            marginBlock: 0,
-                            paddingBlock: 0,
-                          }}
-                        >
-                          <Link
-                            to={`/product/${p.id}`}
-                            onClick={close}
-                            className="cd-img"
-                          >
-                            <img src={p.img} alt="" />
-                          </Link>
-                          <div className="cd-info">
-                            <Link
-                              to={`/product/${p.id}`}
-                              onClick={close}
-                              className="cd-name"
-                            >
-                              {p.name}
-                            </Link>
-                            <small className="muted">
-                              {p.variants ? `${p.variants.length} options` : `1 ${p.unit}`} · {formatINR(p.price)}
-                            </small>
-                            <b className="cd-price">{formatINR(p.price * qty)}</b>
+            ) : (
+              <>
+                <div className="cd-body">
+                  <AnimatePresence initial={false}>
+                    {shop.items.map(({ product: p, qty }) => (
+                      <motion.div key={p.id} className="cd-line" layout exit={{ opacity: 0, height: 0, paddingBlock: 0 }}>
+                        <Link to={`/product/${p.id}`} onClick={close} className="cd-img"><img src={p.img} alt="" /></Link>
+                        <div className="cd-info">
+                          <Link to={`/product/${p.id}`} onClick={close} className="cd-name">{p.name}</Link>
+                          <span className="muted">{formatINR(p.price)} / {p.unit}</span>
+                          <div className="cd-actions">
+                            <div className="cd-qty" role="group" aria-label={`Quantity of ${p.name}`}>
+                              <button onClick={() => shop.remove(p.id)} aria-label="Decrease"><Minus size={14} /></button>
+                              <span>{qty}</span>
+                              <button onClick={() => shop.setQty(p.id, qty + 1)} aria-label="Increase"><Plus size={14} /></button>
+                            </div>
+                            <button className="cd-del" onClick={() => shop.setQty(p.id, 0)} aria-label={`Remove ${p.name}`}><Trash2 size={15} /></button>
                           </div>
-                          <AddButton id={p.id} name={p.name} />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
+                        </div>
+                        <b className="cd-total">{formatINR(p.price * qty)}</b>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
 
                   {v && (
-                    <motion.button
-                      key={v.id}
-                      className="cd-card cd-video"
-                      onClick={() => shop.setVideo(v)}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                    >
-                      <span className="cd-vimg">
-                        <img src={v.poster} alt="" />
-                        <span>
-                          <Play size={14} fill="currentColor" />
-                        </span>
-                      </span>
-                      <span className="cd-vtxt">
-                        <small>WATCH CAKE TUTORIAL · {v.duration}</small>
-                        <b>{v.title}</b>
-                      </span>
-                      <ChevronRight size={18} />
-                    </motion.button>
+                    <button className="cd-video" onClick={() => shop.setVideo(v)}>
+                      <span className="cd-vimg"><img src={v.poster} alt="" /><Play size={16} fill="currentColor" /></span>
+                      <span><small>Watch before you bake · {v.duration}</small><b>{v.title}</b></span>
+                    </button>
                   )}
-
-                  <div className="cd-card cd-bill">
-                    <h3>
-                      <ReceiptText size={16} /> Bill Summary
-                    </h3>
-                    <div className="cd-bill-row">
-                      <span>Items Subtotal</span>
-                      <b>{formatINR(shop.subtotal)}</b>
-                    </div>
-                    <div className="cd-bill-row">
-                      <span>Bengaluru Delivery</span>
-                      <span className="cd-ship-fee">
-                        {amountNeeded === 0 ? <strong style={{ color: 'var(--ok)' }}>FREE</strong> : 'Calculated at checkout'}
-                      </span>
-                    </div>
-                    <div className="cd-grand">
-                      <span>Estimated Total</span>
-                      <span>{formatINR(shop.subtotal)}</span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {shop.items.length > 0 && (
-              <footer className="cd-foot">
-                {/* Instant WhatsApp Checkout Button */}
-                <a
-                  href={generateWhatsAppOrder()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-whatsapp cd-wa-btn"
-                >
-                  <MessageCircle size={18} />
-                  <span>Order Directly via WhatsApp</span>
-                </a>
-
-                <button className="cd-pay" onClick={proceed}>
-                  <span>
-                    <b>{formatINR(shop.subtotal)}</b>
-                    <small>TOTAL</small>
-                  </span>
-                  <span className="cd-pay-cta">
-                    {shop.user ? 'Proceed to Checkout' : 'Sign in to Checkout'}{' '}
-                    <ChevronRight size={18} />
-                  </span>
-                </button>
-              </footer>
+                </div>
+                <footer className="cd-foot">
+                  <div className="cd-sub"><span>Subtotal</span><b>{formatINR(shop.subtotal)}</b></div>
+                  <p className="muted">Delivery or store pick-up is chosen at checkout.</p>
+                  <button className="btn btn-brand cd-checkout" onClick={checkout}><Lock size={16} /> {shop.user ? 'Checkout' : 'Login to checkout'}</button>
+                  <button className="cd-continue" onClick={close}>Continue shopping</button>
+                </footer>
+              </>
             )}
           </motion.aside>
         </motion.div>

@@ -1,79 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from './ProductCard.jsx';
 import './Rail.css';
 
-export default function Rail({ title, subtitle, products, to }) {
+// Horizontal product carousel with arrows (desktop) and swipe (mobile)
+export default function Rail({ title, products, to }) {
   const track = useRef(null);
   const [edge, setEdge] = useState({ start: true, end: false });
-
   const check = () => {
     const el = track.current;
-    if (!el) return;
-    setEdge({
-      start: el.scrollLeft < 10,
-      end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 10,
-    });
+    if (el) setEdge({ start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth > el.scrollWidth - 8 });
   };
-
-  useEffect(() => {
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, [products]);
-
-  const go = (dir) => {
-    if (!track.current) return;
-    track.current.scrollBy({
-      left: dir * track.current.clientWidth * 0.75,
-      behavior: 'smooth',
-    });
-  };
-
+  useEffect(() => { check(); window.addEventListener('resize', check); return () => window.removeEventListener('resize', check); }, [products.length]);
+  const go = (d) => track.current?.scrollBy({ left: d * track.current.clientWidth * 0.8, behavior: 'smooth' });
+  if (!products.length) return null;
   return (
-    <section className="rail wrap">
-      <div className="rail-head">
-        <div>
-          <h2>{title}</h2>
-          {subtitle && <p className="rail-sub">{subtitle}</p>}
+    <section className="wrap sec rail">
+      <div className="sec-head-row">
+        <h2>{title}</h2>
+        <div className="rail-ctrl">
+          {to && <Link to={to} className="view-all">View all</Link>}
+          <button className="rail-btn" onClick={() => go(-1)} disabled={edge.start} aria-label={`Scroll ${title} left`}><ChevronLeft size={18} /></button>
+          <button className="rail-btn" onClick={() => go(1)} disabled={edge.end} aria-label={`Scroll ${title} right`}><ChevronRight size={18} /></button>
         </div>
-        {to && (
-          <Link to={to} className="see-all">
-            <span>Explore all</span>
-            <ArrowRight size={15} />
-          </Link>
-        )}
       </div>
-
-      <div className="rail-box">
-        {!edge.start && (
-          <button
-            className="rail-arrow left"
-            onClick={() => go(-1)}
-            aria-label={`Scroll ${title} left`}
-          >
-            <ChevronLeft size={22} />
-          </button>
-        )}
-
-        <div className="rail-track" ref={track} onScroll={check}>
-          {products.map((p, i) => (
-            <div className="rail-item" key={p.id}>
-              <ProductCard product={p} index={i} />
-            </div>
-          ))}
-        </div>
-
-        {!edge.end && (
-          <button
-            className="rail-arrow right"
-            onClick={() => go(1)}
-            aria-label={`Scroll ${title} right`}
-          >
-            <ChevronRight size={22} />
-          </button>
-        )}
+      <div className="rail-track" ref={track} onScroll={check}>
+        {products.map((p, i) => <div className="rail-item" key={p.id}><ProductCard product={p} index={i} /></div>)}
       </div>
     </section>
   );

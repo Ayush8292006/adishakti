@@ -1,92 +1,84 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowLeft } from 'lucide-react';
+import { X, Eye, EyeOff } from 'lucide-react';
 import { useShop } from '../context/ShopContext.jsx';
 import { Logo } from './Layout.jsx';
 import './LoginModal.css';
 
-// Phone → OTP → name. Prototype: any 4-digit OTP works. Connect to backend in verify().
+// Sign in / Create account. Prototype: any details work — connect to the backend in submit().
 export default function LoginModal() {
   const shop = useShop();
-  const [step, setStep] = useState('phone');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '']);
-  const [name, setName] = useState('');
-  const [timer, setTimer] = useState(30);
-  const boxes = useRef([]);
+  const [mode, setMode] = useState('in');
+  const [show, setShow] = useState(false);
+  const [err, setErr] = useState('');
+  const [forgot, setForgot] = useState(false);
   const close = () => shop.setLoginOpen(false);
+  useEffect(() => { if (!shop.loginOpen) { setMode('in'); setErr(''); setForgot(false); } }, [shop.loginOpen]);
 
-  useEffect(() => { if (!shop.loginOpen) { setStep('phone'); setOtp(['', '', '', '']); } }, [shop.loginOpen]);
-  useEffect(() => {
-    if (step !== 'otp') return undefined;
-    setTimer(30);
-    const t = setInterval(() => setTimer((s) => (s > 0 ? s - 1 : 0)), 1000);
-    setTimeout(() => boxes.current[0]?.focus(), 250);
-    return () => clearInterval(t);
-  }, [step]);
-
-  const typeOtp = (i, v) => {
-    const d = v.replace(/\D/g, '').slice(-1);
-    const next = [...otp]; next[i] = d; setOtp(next);
-    if (d && i < 3) boxes.current[i + 1]?.focus();
-    if (next.every(Boolean)) setTimeout(() => setStep('name'), 250);
+  const submit = (e) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const id = String(f.get('id') || '').trim();
+    if (!id || String(f.get('password') || '').length < 4) { setErr('Please enter your email or mobile number and a password (min 4 characters).'); return; }
+    shop.setUser({ name: String(f.get('name') || '').trim() || id.split('@')[0], id });
+    close();
   };
-  const keyOtp = (i, e) => { if (e.key === 'Backspace' && !otp[i] && i > 0) boxes.current[i - 1]?.focus(); };
-  const finish = (e) => { e.preventDefault(); shop.setUser({ name: name || 'Customer', phone }); close(); };
 
   return (
     <AnimatePresence>
       {shop.loginOpen && (
         <motion.div className="lm-bg" onClick={close} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <motion.div className="lm" role="dialog" aria-modal="true" aria-label="Login" onClick={(e) => e.stopPropagation()}
-            initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} transition={{ type: 'spring', stiffness: 320, damping: 30 }}>
-            <div className="lm-top">
-              {step !== 'phone' ? <button className="icon-btn" onClick={() => setStep('phone')} aria-label="Back"><ArrowLeft size={20} /></button> : <span />}
-              <button className="icon-btn" onClick={close} aria-label="Close"><X size={20} /></button>
-            </div>
-            <AnimatePresence mode="wait">
-              <motion.div key={step} initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -30, opacity: 0 }} transition={{ duration: 0.25 }} className="lm-body">
-                {step === 'phone' && (
-                  <form onSubmit={(e) => { e.preventDefault(); if (phone.length === 10) setStep('otp'); }}>
-                    <div className="lm-logo"><Logo /></div>
-                    <h2>Baking tools, delivered</h2>
-                    <p className="muted">Log in or sign up with your mobile number</p>
-                    <label className="lm-phone">
-                      <span>+91</span>
-                      <span className="sr-only">Mobile number</span>
-                      <input autoFocus inputMode="numeric" autoComplete="tel-national" placeholder="Enter mobile number" value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} />
-                    </label>
-                    <button className="btn btn-pink lm-btn" disabled={phone.length !== 10}>Continue</button>
-                    <p className="lm-terms muted">By continuing, you agree to our terms of service &amp; privacy policy.</p>
-                  </form>
+          <motion.div className="lm" role="dialog" aria-modal="true" aria-label={mode === 'in' ? 'Sign in' : 'Create account'} onClick={(e) => e.stopPropagation()}
+            initial={{ y: 30, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 30, opacity: 0 }} transition={{ type: 'spring', stiffness: 320, damping: 30 }}>
+            <button className="icon-btn lm-x" onClick={close} aria-label="Close"><X size={20} /></button>
+            <div className="lm-logo"><Logo /></div>
+            {shop.user ? (
+              <div className="lm-in">
+                <h2>Hello, {shop.user.name}</h2>
+                <p className="muted">You’re signed in as {shop.user.id}.</p>
+                <button className="btn btn-line" onClick={() => { shop.setUser(null); close(); }}>Log out</button>
+              </div>
+            ) : forgot ? (
+              <form className="lm-form" onSubmit={(e) => { e.preventDefault(); setForgot('sent'); }}>
+                <h2>Reset your password</h2>
+                {forgot === 'sent' ? <p className="muted">If an account exists, you’ll get a reset link shortly.</p> : (
+                  <><p className="muted">We’ll send you a link to reset your password.</p>
+                    <label className="lm-field"><span>Email or mobile number</span><input required /></label>
+                    <button className="btn btn-brand lm-btn">Send reset link</button></>
                 )}
-                {step === 'otp' && (
-                  <div>
-                    <h2>OTP verification</h2>
-                    <p className="muted">We’ve sent a 4-digit code to <b>+91 {phone}</b></p>
-                    <div className="lm-otp">
-                      {otp.map((d, i) => (
-                        <input key={i} ref={(el) => { boxes.current[i] = el; }} inputMode="numeric" maxLength={1} value={d} aria-label={`Digit ${i + 1}`}
-                          onChange={(e) => typeOtp(i, e.target.value)} onKeyDown={(e) => keyOtp(i, e)} />
-                      ))}
-                    </div>
-                    <p className="lm-resend muted">{timer > 0 ? `Resend code in ${timer}s` : <button className="lm-link" onClick={() => setTimer(30)}>Resend code</button>}</p>
-                    <p className="lm-terms muted">Prototype: enter any 4 digits.</p>
-                  </div>
-                )}
-                {step === 'name' && (
-                  <form onSubmit={finish}>
-                    <h2>Almost done</h2>
-                    <p className="muted">What should we call you?</p>
-                    <label className="lm-field"><span className="sr-only">Your name</span>
-                      <input autoFocus placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
-                    </label>
-                    <button className="btn btn-pink lm-btn">Start shopping</button>
-                  </form>
-                )}
-              </motion.div>
-            </AnimatePresence>
+                <button type="button" className="lm-link" onClick={() => setForgot(false)}>Back to sign in</button>
+              </form>
+            ) : (
+              <>
+                <div className="lm-tabs" role="tablist">
+                  {[['in', 'Sign in'], ['up', 'Create account']].map(([k, l]) => (
+                    <button key={k} role="tab" aria-selected={mode === k} className={mode === k ? 'on' : ''} onClick={() => { setMode(k); setErr(''); }}>
+                      {l}{mode === k && <motion.span layoutId="lm-line" className="lm-line" />}
+                    </button>
+                  ))}
+                </div>
+                <form className="lm-form" onSubmit={submit} noValidate>
+                  <AnimatePresence initial={false}>
+                    {mode === 'up' && (
+                      <motion.label key="name" className="lm-field" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                        <span>Full name</span><input name="name" autoComplete="name" />
+                      </motion.label>
+                    )}
+                  </AnimatePresence>
+                  <label className="lm-field"><span>Email or mobile number</span><input name="id" autoComplete="username" /></label>
+                  <label className="lm-field"><span>Password</span>
+                    <span className="lm-pw">
+                      <input name="password" type={show ? 'text' : 'password'} autoComplete={mode === 'in' ? 'current-password' : 'new-password'} />
+                      <button type="button" className="icon-btn" onClick={() => setShow((s) => !s)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+                    </span>
+                  </label>
+                  {mode === 'in' && <button type="button" className="lm-link right" onClick={() => setForgot(true)}>Forgot your password?</button>}
+                  {err && <p className="lm-err" role="alert">{err}</p>}
+                  <button className="btn btn-brand lm-btn">{mode === 'in' ? 'Sign in' : 'Create account'}</button>
+                  <p className="muted lm-note">{mode === 'in' ? 'New customer? ' : 'Already have an account? '}<button type="button" className="lm-link" onClick={() => setMode(mode === 'in' ? 'up' : 'in')}>{mode === 'in' ? 'Create an account' : 'Sign in'}</button></p>
+                </form>
+              </>
+            )}
           </motion.div>
         </motion.div>
       )}

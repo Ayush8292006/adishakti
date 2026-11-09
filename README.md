@@ -1,6 +1,6 @@
 # Adi Shakti Trader — Customer Website
 
-React + Vite quick-shop website. Layout follows the popular quick-commerce pattern (search-first header, category tiles, product rows with ADD → − qty + stepper, floating cart bar on mobile) in Adi Shakti's own brand colours (chocolate brown, raspberry, cream).
+React + Vite online store for baking tools & accessories. Bakery-supplies store layout (announcement bar, search header, All Categories mega menu, hero slider, category tiles, tabbed product sections, promo banners, trust strip, newsletter footer) in Adi Shakti's own branding (chocolate brown, raspberry, cream).
 
 ## Run
 
@@ -13,15 +13,15 @@ npm run dev
 
 | Route | Page |
 |---|---|
-| `/` | Home: banner, promo cards, category tiles, product rows, demo videos |
-| `/category/:slug` | Category page with side menu and product grid (`/category/all`, `/category/new-arrivals`, `/category/cake-toppers`, ...) |
-| `/search?q=` | Live search results (type in the header search) |
-| `/product/:id` | Product page: options, ADD stepper, demo video, details, similar products |
-| `/login` | Opens the login popup (mobile number → OTP → name). Any 4-digit OTP works in the prototype |
+| `/` | Home: hero slider, trust strip, Shop by Category, What's New, Our Baking Products (tabs), promo banners, baking tools block, moulds (tabs), cake demo videos, Cake Toppers carousel, Recently Viewed, wholesale call band |
+| `/category/:slug` | Collection page with sidebar filters (category, price, in stock) and sort. Mobile: Filter drawer |
+| `/search?q=` | Search results (header search also shows live suggestions) |
+| `/product/:id` | Product page: hover-zoom image, options, quantity, Add to cart / Buy it now, cake demo video, description accordions, You may also like, Recently viewed |
+| `/login` | Opens the Sign in / Create account popup |
 
 ## Notes
 
-- **Prices** in `src/data/products.js` are sample. Stock figures come from the store list.
-- **Videos**: set `src` in `src/data/videos.js` to the uploaded MP4 URLs.
-- **Cart** shows bill details and suggests a cake demo video based on the items in it.
-- `vercel.json` and `public/_redirects` are included so routes work after deploy and refresh.
+- Prices in `src/data/products.js` are **sample**. Stock comes from the store list.
+- Set `src` in `src/data/videos.js` to the uploaded demo MP4 URLs.
+- Login and newsletter are prototypes. Connect them to the backend.
+- `vercel.json` / `public/_redirects` keep routes working after refresh on Vercel / Netlify.

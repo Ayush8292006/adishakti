@@ -35,7 +35,7 @@ export default function VideoModal() {
                   <div key={id} className="vm-p">
                     <img src={p.img} alt="" />
                     <span><b>{p.name}</b><small>{formatINR(p.price)}</small></span>
-                    <AddButton id={id} name={p.name} />
+                    <AddButton id={id} name={p.name} size="sm" />
                   </div>
                 );
               })}

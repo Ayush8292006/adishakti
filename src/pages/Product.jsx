@@ -1,290 +1,130 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  ChevronRight, ChevronDown, Play, Video, BadgePercent, Store,
-  Star, ShieldCheck, Truck, MessageCircle
-} from 'lucide-react';
-import AddButton from '../components/AddButton.jsx';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, ChevronDown, Minus, Plus, Play, Truck, Store, BadgePercent, Phone, ShoppingBag, Zap } from 'lucide-react';
 import Rail from '../components/Rail.jsx';
 import { useShop } from '../context/ShopContext.jsx';
 import { PRODUCTS, findProduct, formatINR, isLowStock, catSlug } from '../data/products.js';
 import { VIDEOS } from '../data/videos.js';
 import './Product.css';
 
-const EASE = [0.16, 1, 0.3, 1];
+function Acc({ title, children, open: o = false }) {
+  const [open, setOpen] = useState(o);
+  return (
+    <div className="acc">
+      <button onClick={() => setOpen((x) => !x)} aria-expanded={open}>{title}<ChevronDown size={18} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .25s' }} /></button>
+      <AnimatePresence initial={false}>
+        {open && <motion.div className="acc-body" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}><div>{children}</div></motion.div>}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function Product() {
   const { id } = useParams();
   const p = findProduct(Number(id));
   const shop = useShop();
+  const [qty, setQty] = useState(1);
   const [variant, setVariant] = useState(null);
-  const [open, setOpen] = useState(true);
+  const [zoom, setZoom] = useState({ on: false, x: 50, y: 50 });
 
   useEffect(() => {
-    setVariant(p?.variants?.[0]?.name || null);
-  }, [id, p]);
+    if (!p) return;
+    setQty(1); setVariant(p.variants?.[0]?.name || null);
+    shop.markViewed(p.id);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!p) {
-    return (
-      <main className="wrap pd-missing">
-        <h1>Product not found</h1>
-        <p className="muted">The product you are looking for might have been moved or updated.</p>
-        <Link to="/" className="btn btn-pink">
-          Browse All Products
-        </Link>
-      </main>
-    );
-  }
+  if (!p) return <main className="wrap" style={{ padding: '60px 0', textAlign: 'center' }}><h1>Product not found</h1><Link to="/category/all" className="btn btn-brand">Browse products</Link></main>;
 
+  const soldOut = p.stock === 0;
   const demo = VIDEOS.find((v) => v.productIds.includes(p.id)) || VIDEOS.find((v) => v.category === p.category);
   const related = PRODUCTS.filter((x) => x.category === p.category && x.id !== p.id);
-  const stock = p.stock == null
-    ? 'Stock to be confirmed'
-    : isLowStock(p)
-      ? `Only ${p.stock} left in Gandhi Bazaar`
-      : `${p.stock} ${p.unit} in stock (Immediate dispatch)`;
-
-  const mrp = Math.round(p.price * 1.25);
-
-  const whatsappMessage = `Hi Adi Shakti Trader! I want to order "${p.name}" (Price: ${formatINR(p.price)}${variant ? `, Option: ${variant}` : ''
-    }). Is same-day delivery available?`;
+  const recently = shop.viewed.filter((x) => x !== p.id).map(findProduct).filter(Boolean);
+  const stockText = p.stock == null ? 'Stock to be confirmed — call to check' : soldOut ? 'Sold out' : isLowStock(p) ? `Hurry, only ${p.stock} left in stock` : 'In stock';
+  const add = () => { shop.add(p.id, qty); };
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="pd-page"
-    >
-      <div className="wrap pd">
-        <div className="pd-left">
-          <motion.div
-            className="pd-img"
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: EASE }}
-          >
-            <img src={p.img} alt={p.name} />
-            {p.isNew && <span className="pd-new">NEW ARRIVAL</span>}
-            {p.category === 'Silicone Moulds' && (
-              <span className="pd-food-badge">
-                <ShieldCheck size={13} /> 100% Certified Food-Grade Platinum Silicone
-              </span>
-            )}
+    <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <div className="wrap">
+        <nav className="crumbs pd-crumbs" aria-label="Breadcrumb">
+          <Link to="/">Home</Link><ChevronRight size={13} />
+          <Link to={`/category/${catSlug(p.category)}`}>{p.category}</Link><ChevronRight size={13} />
+          <span>{p.name}</span>
+        </nav>
+
+        <div className="pd">
+          <motion.div className="pd-gallery" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <div className="pd-main"
+              onMouseMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); setZoom({ on: true, x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 }); }}
+              onMouseLeave={() => setZoom((z) => ({ ...z, on: false }))}>
+              <img src={p.img} alt={p.name} style={{ transformOrigin: `${zoom.x}% ${zoom.y}%`, transform: zoom.on ? 'scale(1.8)' : 'none' }} />
+              {p.isNew && <span className="pd-badge">New</span>}
+            </div>
+            <p className="pd-hint muted">Hover to zoom</p>
           </motion.div>
 
-          <div className="pd-details desk">
-            <button
-              className="pd-acc"
-              onClick={() => setOpen((o) => !o)}
-              aria-expanded={open}
-            >
-              <span>Product Specifications &amp; Details</span>
-              <ChevronDown
-                size={18}
-                style={{
-                  transform: open ? 'rotate(180deg)' : 'none',
-                  transition: 'transform .28s var(--ease)',
-                }}
-              />
-            </button>
-            {open && (
-              <dl>
-                <div>
-                  <dt>Category</dt>
-                  <dd>{p.category}</dd>
-                </div>
-                <div>
-                  <dt>Sold As</dt>
-                  <dd>Per {p.unit}</dd>
-                </div>
-                {p.variants && (
-                  <div>
-                    <dt>Available Options</dt>
-                    <dd>{p.variants.map((v) => v.name).join(', ')}</dd>
-                  </div>
-                )}
-                <div>
-                  <dt>Stock Status</dt>
-                  <dd>{stock}</dd>
-                </div>
-                <div>
-                  <dt>Material / Safety</dt>
-                  <dd>BPA-Free, 100% Food-Safe &amp; Non-Toxic</dd>
-                </div>
-                <div>
-                  <dt>Sold &amp; Dispatched By</dt>
-                  <dd>Adi Shakti Trader, #39 WAT Street, Gandhi Bazaar, Bengaluru</dd>
-                </div>
-              </dl>
+          <motion.div className="pd-info" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.08 }}>
+            <Link to={`/category/${catSlug(p.category)}`} className="pd-cat">{p.category}</Link>
+            <h1>{p.name}</h1>
+            <div className="pd-price"><b>{formatINR(p.price)}</b><span className="muted">per {p.unit}</span></div>
+            <p className={`pd-stock ${soldOut ? 'out' : isLowStock(p) ? 'low' : ''}`}><i />{stockText}</p>
+
+            {p.variants && (
+              <fieldset className="pd-var">
+                <legend>Option: <b>{variant}</b></legend>
+                <div>{p.variants.map((v) => (
+                  <label key={v.name} className={variant === v.name ? 'on' : ''}>
+                    <input type="radio" name="variant" className="sr-only" checked={variant === v.name} onChange={() => setVariant(v.name)} />{v.name}
+                  </label>
+                ))}</div>
+              </fieldset>
             )}
-          </div>
+
+            <div className="pd-qty-row">
+              <span className="pd-label">Quantity</span>
+              <div className="pd-qty" role="group" aria-label="Quantity">
+                <button onClick={() => setQty((x) => Math.max(1, x - 1))} aria-label="Decrease"><Minus size={16} /></button>
+                <span>{qty}</span>
+                <button onClick={() => setQty((x) => x + 1)} aria-label="Increase"><Plus size={16} /></button>
+              </div>
+            </div>
+            <div className="pd-btns">
+              <button className="btn btn-line pd-add" onClick={add} disabled={soldOut}><ShoppingBag size={18} /> Add to cart</button>
+              <button className="btn btn-accent pd-buy" onClick={() => { add(); shop.setCartOpen(true); }} disabled={soldOut}><Zap size={18} /> Buy it now</button>
+            </div>
+
+            {demo && (
+              <button className="pd-demo" onClick={() => shop.setVideo(demo)}>
+                <span className="pd-demo-img"><img src={demo.poster} alt="" /><Play size={16} fill="currentColor" /></span>
+                <span><small>See it in a cake demo · {demo.duration}</small><b>{demo.title}</b></span>
+                <ChevronRight size={18} />
+              </button>
+            )}
+
+            <ul className="pd-perks">
+              <li><Truck size={18} /> Delivery across Bengaluru</li>
+              <li><Store size={18} /> Pick up from Gandhi Bazaar store</li>
+              <li><BadgePercent size={18} /> Wholesale rates on bulk orders</li>
+            </ul>
+
+            <div className="pd-accs">
+              <Acc title="Description" open>
+                <p><b>{p.name}</b> from Adi Shakti Trader, Gandhi Bazaar, Bengaluru. Sold per {p.unit}{p.variants ? `, available in ${p.variants.map((v) => v.name).join(' and ')}` : ''}.</p>
+                <p>Part of our <Link to={`/category/${catSlug(p.category)}`}>{p.category}</Link> range for home bakers and bakeries.</p>
+              </Acc>
+              <Acc title="Delivery & pick-up">
+                <p>We deliver across Bengaluru. You can also collect your order from #39, Ground Floor, WAT Street, Beside Domino’s Pizza, Gandhi Bazaar, Basavanagudi.</p>
+              </Acc>
+              <Acc title="Wholesale & bulk orders">
+                <p>Bakeries and cake studios can ask for wholesale rates. Call <a href="tel:+917996222111"><Phone size={13} /> 7996 222111</a> or <a href="tel:+918041486443">080-41486443</a>.</p>
+              </Acc>
+            </div>
+          </motion.div>
         </div>
-
-        <motion.div
-          className="pd-right"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
-        >
-          <nav className="crumbs" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <ChevronRight size={12} />
-            <Link to={`/category/${catSlug(p.category)}`}>{p.category}</Link>
-            <ChevronRight size={12} />
-            <span>{p.name}</span>
-          </nav>
-
-          <h1>{p.name}</h1>
-
-          <div className="pd-rating-strip">
-            <div className="pd-stars">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={14} fill="#eab308" color="#eab308" />
-              ))}
-            </div>
-            <span>4.9 / 5</span>
-            <span className="pd-dot">•</span>
-            <span className="muted">38 verified reviews</span>
-            <span className="pd-dot">•</span>
-            <Link to={`/category/${catSlug(p.category)}`} className="pd-viewall">
-              View all {p.category} &rarr;
-            </Link>
-          </div>
-
-          {p.variants ? (
-            <div className="pd-units" role="radiogroup" aria-label="Choose option">
-              <span className="pd-sub">Select Option / Color:</span>
-              <div>
-                {p.variants.map((v) => (
-                  <button
-                    key={v.name}
-                    role="radio"
-                    aria-checked={variant === v.name}
-                    className={variant === v.name ? 'on' : ''}
-                    onClick={() => setVariant(v.name)}
-                  >
-                    <b>{v.name}</b>
-                    <small>{formatINR(p.price)}</small>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="pd-units">
-              <span className="pd-sub">Package Unit:</span>
-              <div>
-                <button className="on" aria-pressed="true">
-                  <b>1 {p.unit}</b>
-                  <small>{formatINR(p.price)}</small>
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="pd-buy">
-            <div className="pd-price-col">
-              <div className="pd-prices">
-                <span className="pd-price">{formatINR(p.price)}</span>
-                <span className="pd-mrp">{formatINR(mrp)}</span>
-                <span className="pd-save-badge">20% OFF</span>
-              </div>
-              <small className="muted">Inclusive of all local taxes</small>
-            </div>
-            <div className="pd-add-action">
-              <AddButton id={p.id} name={p.name} size="lg" />
-            </div>
-          </div>
-
-          <div className="pd-action-btns">
-            <a
-              href={`https://wa.me/917996222111?text=${encodeURIComponent(whatsappMessage)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-whatsapp pd-wa-btn"
-            >
-              <MessageCircle size={18} /> Order on WhatsApp
-            </a>
-          </div>
-
-          <p className={`pd-stock ${isLowStock(p) ? 'low' : ''}`}>
-            <span className="stock-bullet" /> {stock}
-          </p>
-
-          <div className="pd-delivery-callout">
-            <Truck size={17} className="deliv-ico" />
-            <div>
-              <b>Express Delivery in Bengaluru</b>
-              <small>Dispatched today from Gandhi Bazaar if ordered before 2 PM.</small>
-            </div>
-          </div>
-
-          {demo && (
-            <button className="pd-demo" onClick={() => shop.setVideo(demo)}>
-              <span className="pd-demo-img">
-                <img src={demo.poster} alt="" />
-                <Play size={16} fill="currentColor" />
-              </span>
-              <span>
-                <small>WATCH HOW TO USE · {demo.duration}</small>
-                <b>{demo.title}</b>
-              </span>
-              <ChevronRight size={18} />
-            </button>
-          )}
-
-          <div className="pd-why">
-            <h2>Why Buy from Adi Shakti?</h2>
-            {[
-              [Video, '2-Minute Cake Demos', 'See how to use every mould and nozzle set before you start baking.'],
-              [BadgePercent, 'Direct Wholesale Rates', 'Discounted tiered rates for bakeries and home chefs on bulk orders.'],
-              [Store, 'Pick Up or Fast Delivery', 'Collect in person from Gandhi Bazaar or get express door delivery across Bengaluru.'],
-            ].map(([Icon, title, desc]) => (
-              <div key={title} className="pd-why-item">
-                <span>
-                  <Icon size={20} />
-                </span>
-                <p>
-                  <b>{title}</b>
-                  <small>{desc}</small>
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="pd-details mob">
-            <h2>Product Details</h2>
-            <dl>
-              <div>
-                <dt>Category</dt>
-                <dd>{p.category}</dd>
-              </div>
-              <div>
-                <dt>Sold As</dt>
-                <dd>Per {p.unit}</dd>
-              </div>
-              <div>
-                <dt>Availability</dt>
-                <dd>{stock}</dd>
-              </div>
-              <div>
-                <dt>Store Location</dt>
-                <dd>#39 WAT Street, Gandhi Bazaar, Basavanagudi, Bengaluru</dd>
-              </div>
-            </dl>
-          </div>
-        </motion.div>
       </div>
 
-      {related.length > 0 && (
-        <Rail
-          title={`More in ${p.category}`}
-          subtitle="Frequently bought together by Bengaluru cake decorators"
-          products={related}
-          to={`/category/${catSlug(p.category)}`}
-        />
-      )}
+      <Rail title="You may also like" products={related} to={`/category/${catSlug(p.category)}`} />
+      <Rail title="Recently viewed" products={recently} />
     </motion.main>
   );
 }
