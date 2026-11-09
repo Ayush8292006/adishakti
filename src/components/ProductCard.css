@@ -1,33 +1,288 @@
-.pc { display: flex; flex-direction: column; min-width: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.3s, border-color 0.3s; }
-.pc:hover { box-shadow: var(--shadow); border-color: transparent; }
-.pc-media { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--cream); }
-.pc-media > a { display: block; height: 100%; }
-.pc-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
-.pc:hover .pc-media img { transform: scale(1.07); }
-.pc-badges { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; pointer-events: none; }
-.pc-badges span { font-family: var(--head); font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 4px; }
-.b-new { background: var(--accent); color: #fff; }
-.b-low { background: #fff; color: #8a4b00; border: 1px solid #f0d9b5; }
-.b-out { background: #555; color: #fff; }
-.pc-quick { position: absolute; left: 50%; bottom: 10px; translate: -50% 0; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: #fff; color: var(--brand); font-family: var(--head); font-size: 12.5px; font-weight: 500; box-shadow: var(--shadow); opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s var(--ease); white-space: nowrap; }
-.pc:hover .pc-quick, .pc-quick:focus-visible { opacity: 1; transform: none; }
-.pc-body { display: flex; flex-direction: column; gap: 4px; padding: 12px 12px 14px; flex: 1; }
-.pc-cat { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-.pc-title { font-family: var(--head); font-size: 14px; font-weight: 500; line-height: 1.4; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 39px; transition: color 0.2s; }
-.pc-title:hover { color: var(--accent); }
-.pc-price { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; margin: 2px 0 10px; font-size: 13.5px; }
-.pc-price b { font-family: var(--head); font-size: 16px; font-weight: 600; color: var(--brand); }
-.pc-price small { color: var(--muted); font-size: 12px; }
-.pc-body > .addbtn, .pc-choose { margin-top: auto; }
-.pc-choose { display: flex; align-items: center; justify-content: center; height: 42px; border-radius: 6px; border: 1px solid var(--brand); color: var(--brand); font-family: var(--head); font-weight: 500; font-size: 13.5px; transition: background 0.25s, color 0.25s; }
-.pc-choose:hover { background: var(--brand); color: #fff; }
-@media (hover: none) { .pc-quick { display: none; } .pc:hover .pc-media img { transform: none; } }
-@media (max-width: 640px) {
-  .pc-body { padding: 10px 10px 12px; }
-  .pc-title { font-size: 13px; min-height: 36px; }
-  .pc-price { flex-direction: column; align-items: flex-start; gap: 0; margin-bottom: 8px; }
-  .pc-price b { font-size: 15px; }
-  .pc-body .add-idle, .pc-choose { font-size: 12.5px; height: 40px; }
-  .pc-body .add-idle svg { display: none; }
-  .pc-body > .addbtn { height: 40px; }
+/* ============================================================
+   Product Card — Clean, Bright The Baking Tools Styling
+   ============================================================ */
+
+.pcard {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: transform 0.24s var(--ease), box-shadow 0.24s var(--ease), border-color 0.24s;
+  position: relative;
+  height: 100%;
+}
+
+.pcard:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+.pcard-img-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--bg-white);
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.pcard-img-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pcard-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s var(--ease);
+}
+
+.pcard:hover .pcard-img-wrap img {
+  transform: scale(1.06);
+}
+
+/* Floating Badges */
+.pcard-badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pcard-badge-sale {
+  background: var(--primary);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(226, 62, 87, 0.3);
+}
+
+.pcard-badge-new {
+  background: var(--secondary);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.04em;
+}
+
+/* Wishlist Button */
+.pcard-wishlist {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--border-light);
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-xs);
+}
+
+.pcard-wishlist:hover {
+  background: #ffffff;
+  transform: scale(1.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.pcard-wishlist.active {
+  background: #fff;
+  border-color: var(--primary);
+}
+
+.pcard-food-safe {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--border-light);
+  color: var(--accent-green);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+}
+
+/* Card Body */
+.pcard-body {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 14px;
+  flex: 1;
+  background: var(--bg-card);
+}
+
+.pcard-category-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.pcard-cat-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pcard-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-body);
+}
+
+.pcard-rating small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.pcard-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--text-heading);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 36px;
+  transition: color 0.2s;
+  margin-bottom: 6px;
+}
+
+.pcard-title:hover {
+  color: var(--primary);
+}
+
+.pcard-stock-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.stock-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.stock-dot.stock-ok {
+  background: var(--accent-green);
+}
+
+.stock-dot.stock-low {
+  background: var(--accent-gold);
+}
+
+.stock-dot.stock-tbc {
+  background: var(--text-light);
+}
+
+.pcard-dot-sep {
+  opacity: 0.4;
+}
+
+.pcard-unit-txt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card Footer */
+.pcard-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pcard-price-box {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.pcard-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.pcard-price {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-heading);
+}
+
+.pcard-mrp {
+  font-size: 11.5px;
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.pcard-save-txt {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent-green);
+  margin-top: 1px;
+}
+
+.pcard-action {
+  flex: none;
+}
+
+@media (max-width: 480px) {
+  .pcard-body {
+    padding: 10px 10px 12px;
+  }
+  .pcard-title {
+    font-size: 12.5px;
+    min-height: 33px;
+  }
+  .pcard-price {
+    font-size: 14px;
+  }
 }

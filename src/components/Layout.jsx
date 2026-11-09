@@ -1,264 +1,755 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, ShoppingBag, User, Menu, X, ChevronDown, ChevronLeft, ChevronRight, Phone, MapPin, ArrowUp, Check, Mail, LayoutGrid,
+  Search, ShoppingCart, ChevronDown, ChevronRight, User, MapPin,
+  ArrowLeft, ArrowUp, MessageCircle, Sparkles, Truck, Phone, X,
+  Heart, Menu, Tag, Package, HelpCircle, ShieldCheck
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext.jsx';
-import { PRODUCTS, CATEGORIES, CAT_IMG, catSlug, formatINR } from '../data/products.js';
+import { CATEGORIES, PRODUCTS, formatINR, catSlug } from '../data/products.js';
 import CartDrawer from './CartDrawer.jsx';
+import WishlistDrawer from './WishlistDrawer.jsx';
 import VideoModal from './VideoModal.jsx';
 import LoginModal from './LoginModal.jsx';
+import AddButton from './AddButton.jsx';
 import './Layout.css';
 
-const ANNOUNCE = [
-  <>Wholesale rates for bakeries — call <a href="tel:+917996222111">7996 222111</a></>,
-  <>Store pick-up available at Gandhi Bazaar, Basavanagudi</>,
-  <>New stock: filigree butterflies, rose moulds &amp; plunger cutters</>,
-];
-const NAV = [
-  { to: '/category/cake-toppers', label: 'Cake Toppers' },
-  { to: '/category/silicone-moulds', label: 'Moulds' },
-  { to: '/category/baking-tools', label: 'Baking Tools' },
-  { to: '/category/packing-materials', label: 'Packing' },
-  { to: '/category/new-arrivals', label: 'New Arrivals' },
-  { to: '/#demos', label: 'Cake Demos' },
+const HINTS = [
+  'chocolate moulds',
+  'rose silicone mould',
+  'acrylic cake toppers',
+  'piping nozzle set',
+  'MDF cake boards',
+  'cake boxes & packing',
+  'gold wrapper foils',
 ];
 
-export function Logo({ light = false }) {
+export function BrandLogo() {
   return (
-    <span className={`logo ${light ? 'light' : ''}`}>
-      <span className="logo-mark" aria-hidden="true">
-        <svg viewBox="0 0 40 40" width="26" height="26"><path d="M10 18c-3 0-4-5 0-6 0-4 6-5 8-2 2-3 8-2 8 2 4 1 3 6 0 6v4H10z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" /><rect x="10" y="25" width="16" height="4" rx="2" fill="#B8235A" /></svg>
+    <span className="blogo">
+      <span className="blogo-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="22" height="22">
+          <path
+            d="M10 18c-3 0-4-5 0-6 0-4 6-5 8-2 2-3 8-2 8 2 4 1 3 6 0 6v4H10z"
+            fill="none"
+            stroke="#ffffff"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+          <rect x="10" y="25" width="16" height="4" rx="2" fill="#ffffff" />
+        </svg>
       </span>
-      <span className="logo-text"><b>Adi Shakti</b><small>Trader · Baking Tools</small></span>
+      <span className="blogo-text">
+        <span className="blogo-name">Adi Shakti</span>
+        <span className="blogo-tag">THE BAKING TOOLS</span>
+      </span>
     </span>
   );
 }
 
-function Announce() {
-  const [i, setI] = useState(0);
-  useEffect(() => { const t = setInterval(() => setI((x) => (x + 1) % ANNOUNCE.length), 4000); return () => clearInterval(t); }, []);
-  return (
-    <div className="announce">
-      <button className="ann-arrow" onClick={() => setI((x) => (x - 1 + ANNOUNCE.length) % ANNOUNCE.length)} aria-label="Previous message"><ChevronLeft size={16} /></button>
-      <div className="ann-text" aria-live="polite">
-        <AnimatePresence mode="wait">
-          <motion.p key={i} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -12, opacity: 0 }} transition={{ duration: 0.3 }}>{ANNOUNCE[i]}</motion.p>
-        </AnimatePresence>
-      </div>
-      <button className="ann-arrow" onClick={() => setI((x) => (x + 1) % ANNOUNCE.length)} aria-label="Next message"><ChevronRight size={16} /></button>
-    </div>
-  );
-}
+export const Logo = BrandLogo;
 
-function SearchBox({ onDone, autoFocus }) {
+
+function GlobalSearchBar() {
   const navigate = useNavigate();
-  const [q, setQ] = useState('');
-  const [open, setOpen] = useState(false);
-  const box = useRef(null);
-  const hits = useMemo(() => (q.trim() ? PRODUCTS.filter((p) => `${p.name} ${p.category}`.toLowerCase().includes(q.toLowerCase())).slice(0, 6) : []), [q]);
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(pathname === '/search' ? params.get('q') || '' : '');
+  const [hint, setHint] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
   useEffect(() => {
-    const close = (e) => { if (box.current && !box.current.contains(e.target)) setOpen(false); };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    const t = setInterval(() => setHint((h) => (h + 1) % HINTS.length), 2600);
+    return () => clearInterval(t);
   }, []);
-  const go = (to) => { setOpen(false); setQ(''); onDone?.(); navigate(to); };
+
+  useEffect(() => {
+    if (pathname !== '/search') setQ('');
+    setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const matches = q.trim().length > 1
+    ? PRODUCTS.filter((p) => `${p.name} ${p.category}`.toLowerCase().includes(q.toLowerCase())).slice(0, 5)
+    : [];
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (q.trim()) {
+      navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+      setIsOpen(false);
+    }
+  };
+
   return (
-    <form className="sbox" ref={box} role="search" onSubmit={(e) => { e.preventDefault(); if (q.trim()) go(`/search?q=${encodeURIComponent(q.trim())}`); }}>
-      <label className="sbox-field">
-        <span className="sr-only">Search products</span>
-        <input value={q} autoFocus={autoFocus} onChange={(e) => { setQ(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} placeholder="Search for moulds, toppers, nozzles…" />
-      </label>
-      <button className="sbox-btn" aria-label="Search"><Search size={18} /></button>
+    <div className="search-container" ref={containerRef}>
+      <form className="tbt-searchbar" onSubmit={handleSearchSubmit} role="search">
+        <Search size={18} className="search-ico" />
+        <input
+          value={q}
+          onChange={(e) => {
+            setQ(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder={`Search ${HINTS[hint]}...`}
+          aria-label="Search for baking tools, silicone moulds, cake toppers"
+        />
+        {q && (
+          <button
+            type="button"
+            className="search-clear-btn"
+            onClick={() => setQ('')}
+            aria-label="Clear search"
+          >
+            <X size={15} />
+          </button>
+        )}
+        <button type="submit" className="search-submit-btn" aria-label="Submit search">
+          Search
+        </button>
+      </form>
+
+      {/* Live Dropdown Preview */}
       <AnimatePresence>
-        {open && q.trim() && (
-          <motion.div className="sbox-pop" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}>
-            {hits.length === 0 ? <p className="muted">No products found for “{q}”</p> : hits.map((p) => (
-              <button type="button" key={p.id} onClick={() => go(`/product/${p.id}`)}>
-                <img src={p.img} alt="" /><span><b>{p.name}</b><small>{formatINR(p.price)}</small></span>
+        {isOpen && q.trim().length > 1 && (
+          <motion.div
+            className="search-drop-menu"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.18 }}
+          >
+            <div className="search-drop-bar">
+              <span>Matching Products ({matches.length})</span>
+              <button
+                type="button"
+                className="search-drop-x"
+                onClick={() => setIsOpen(false)}
+              >
+                Close
               </button>
-            ))}
-            {hits.length > 0 && <button type="button" className="sbox-all" onClick={() => go(`/search?q=${encodeURIComponent(q.trim())}`)}>See all results for “{q}”</button>}
+            </div>
+
+            {matches.length === 0 ? (
+              <div className="search-drop-none">
+                <p>No products found for “{q}”</p>
+                <small className="muted">Try searching “mould”, “topper”, or “nozzle”</small>
+              </div>
+            ) : (
+              <div className="search-drop-items">
+                {matches.map((item) => (
+                  <div key={item.id} className="search-drop-row">
+                    <Link
+                      to={`/product/${item.id}`}
+                      className="search-drop-link"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <img src={item.img} alt="" className="search-drop-thumb" />
+                      <div className="search-drop-info">
+                        <span className="search-drop-name">{item.name}</span>
+                        <span className="search-drop-cat">{item.category}</span>
+                        <span className="search-drop-price">{formatINR(item.price)}</span>
+                      </div>
+                    </Link>
+                    <div className="search-drop-action">
+                      <AddButton id={item.id} name={item.name} size="sm" />
+                    </div>
+                  </div>
+                ))}
+                <Link
+                  to={`/search?q=${encodeURIComponent(q.trim())}`}
+                  className="search-drop-view-all"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span>View all results for “{q}”</span>
+                  <ChevronRight size={16} />
+                </Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
-    </form>
-  );
-}
-
-function MegaMenu({ onClose }) {
-  return (
-    <motion.div className="mega" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} onMouseLeave={onClose}>
-      <div className="wrap mega-grid">
-        {CATEGORIES.map((c) => (
-          <div key={c} className="mega-col">
-            <Link to={`/category/${catSlug(c)}`} className="mega-head" onClick={onClose}>
-              <img src={CAT_IMG[c]} alt="" /><span>{c}</span>
-            </Link>
-            {PRODUCTS.filter((p) => p.category === c).slice(0, 4).map((p) => (
-              <Link key={p.id} to={`/product/${p.id}`} onClick={onClose}>{p.name}</Link>
-            ))}
-            <Link to={`/category/${catSlug(c)}`} className="mega-more" onClick={onClose}>View all</Link>
-          </div>
-        ))}
-        <Link to="/category/new-arrivals" className="mega-feature" onClick={onClose}>
-          <img src="/products/filigree-butterfly.jpg" alt="" />
-          <span><small>Just in</small><b>New Arrivals</b><em>Shop now</em></span>
-        </Link>
-      </div>
-    </motion.div>
-  );
-}
-
-function MobileMenu({ open, onClose }) {
-  const [openCat, setOpenCat] = useState(null);
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div className="mm-bg" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <motion.aside className="mm" onClick={(e) => e.stopPropagation()} initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 320, damping: 34 }} aria-label="Menu">
-            <div className="mm-top"><Logo /><button className="icon-btn" onClick={onClose} aria-label="Close menu"><X size={22} /></button></div>
-            <div className="mm-search"><SearchBox onDone={onClose} /></div>
-            <nav className="mm-nav">
-              <Link to="/" onClick={onClose}>Home</Link>
-              {CATEGORIES.map((c) => (
-                <div key={c} className="mm-cat">
-                  <div className="mm-row">
-                    <Link to={`/category/${catSlug(c)}`} onClick={onClose}>{c}</Link>
-                    <button className="icon-btn" onClick={() => setOpenCat(openCat === c ? null : c)} aria-expanded={openCat === c} aria-label={`Show ${c} products`}>
-                      <ChevronDown size={18} style={{ transform: openCat === c ? 'rotate(180deg)' : 'none', transition: 'transform .25s' }} />
-                    </button>
-                  </div>
-                  <AnimatePresence initial={false}>
-                    {openCat === c && (
-                      <motion.div className="mm-sub" initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}>
-                        {PRODUCTS.filter((p) => p.category === c).map((p) => <Link key={p.id} to={`/product/${p.id}`} onClick={onClose}>{p.name}</Link>)}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-              <Link to="/category/new-arrivals" onClick={onClose}>New Arrivals</Link>
-              <Link to="/#demos" onClick={onClose}>Cake Demos</Link>
-            </nav>
-            <div className="mm-foot">
-              <a href="tel:+918041486443"><Phone size={16} /> 080-41486443</a>
-              <span><MapPin size={16} /> Gandhi Bazaar, Basavanagudi, Bengaluru</span>
-            </div>
-          </motion.aside>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </div>
   );
 }
 
 export default function Layout() {
   const shop = useShop();
-  const { pathname, hash } = useLocation();
-  const [mega, setMega] = useState(false);
-  const [mobile, setMobile] = useState(false);
-  const [msearch, setMsearch] = useState(false);
-  const [top, setTop] = useState(false);
-  const [mail, setMail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const isHome = pathname === '/';
 
-  useEffect(() => { setMega(false); setMobile(false); setMsearch(false); }, [pathname, hash]);
-  useEffect(() => { if (hash) setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' }), 80); }, [hash, pathname]);
-  useEffect(() => { const s = () => setTop(window.scrollY > 700); window.addEventListener('scroll', s, { passive: true }); return () => window.removeEventListener('scroll', s); }, []);
-  useEffect(() => { document.body.style.overflow = shop.cartOpen || shop.video || shop.loginOpen || mobile ? 'hidden' : ''; }, [shop.cartOpen, shop.video, shop.loginOpen, mobile]);
+  const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showBackTop, setShowBackTop] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mouldsDropdown, setMouldsDropdown] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (y / docHeight) * 100 : 0;
+
+      setScrollProgress(progress);
+      setScrolled(y > 20);
+      setShowBackTop(y > 350);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    document.body.style.overflow =
+      shop.cartOpen || shop.wishlistOpen || shop.video || shop.loginOpen || mobileMenuOpen
+        ? 'hidden'
+        : '';
+  }, [shop.cartOpen, shop.wishlistOpen, shop.video, shop.loginOpen, mobileMenuOpen]);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  const navCategories = [
+    { label: 'All Products', to: '/category/all' },
+    { label: 'Cake Moulds', to: `/category/${catSlug('Silicone Moulds')}`, hasDropdown: true },
+    { label: 'Cake Toppers', to: `/category/${catSlug('Cake Toppers')}` },
+    { label: 'Baking Tools', to: `/category/${catSlug('Baking Tools')}` },
+    { label: 'Cake Bases & Boards', to: `/category/${catSlug('Cake Base & Boards')}` },
+    { label: 'Packing Materials', to: `/category/${catSlug('Packing Materials')}` },
+    { label: 'Decoration Ribbons', to: `/category/${catSlug('Decoration Ribbons')}` },
+    { label: 'Cake Stands', to: `/category/${catSlug('Cake Stands')}` },
+    { label: '✨ New Arrivals', to: '/category/new-arrivals', isHighlight: true },
+  ];
 
   return (
     <>
-      <Announce />
-      <header className="hdr">
-        <div className="wrap hdr-main">
-          <button className="icon-btn hdr-burger" onClick={() => setMobile(true)} aria-label="Open menu"><Menu size={22} /></button>
-          <Link to="/" className="hdr-logo" aria-label="Adi Shakti Trader home"><Logo /></Link>
-          <div className="hdr-search"><SearchBox /></div>
-          <div className="hdr-icons">
-            <button className="icon-btn hdr-msearch" onClick={() => setMsearch((s) => !s)} aria-label="Search" aria-expanded={msearch}><Search size={21} /></button>
-            <button className="hdr-acct" onClick={() => shop.setLoginOpen(true)}>
-              <User size={21} />
-              <span><small>{shop.user ? 'Hello' : 'Login'}</small><b>{shop.user ? shop.user.name.split(' ')[0] : 'My account'}</b></span>
+      {/* Scroll Depth Progress Bar */}
+      <div
+        className="top-scroll-line"
+        style={{ width: `${scrollProgress}%` }}
+        role="progressbar"
+        aria-valuenow={Math.round(scrollProgress)}
+        aria-valuemin="0"
+        aria-valuemax="100"
+      />
+
+      {/* TOP PROMOTIONAL ANNOUNCEMENT BAR */}
+      <aside className="tbt-top-bar" aria-label="Announcement">
+        <div className="wrap top-bar-wrap">
+          <div className="top-bar-left">
+            <span>✨ <strong>FREE SHIPPING</strong> on orders above ₹1,499</span>
+            <span className="top-bar-sep">|</span>
+            <span>Cash on Delivery (COD) Available</span>
+            <span className="top-bar-sep">|</span>
+            <span>⚡ Same-Day Bengaluru Delivery</span>
+          </div>
+
+          <div className="top-bar-right">
+            <a href="tel:+917996222111" className="top-util-link">
+              <Phone size={13} /> 7996 222111
+            </a>
+            <span className="top-bar-sep">|</span>
+            <a
+              href="https://wa.me/917996222111?text=Hi%2C%20I%20have%20an%20inquiry%20from%20The%20Baking%20Tools%20store"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="top-util-link"
+            >
+              <MessageCircle size={13} /> WhatsApp
+            </a>
+            <span className="top-bar-sep">|</span>
+            <span className="top-util-loc">
+              <MapPin size={13} /> Gandhi Bazaar, Bengaluru
+            </span>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN STICKY HEADER */}
+      <header className={`tbt-header ${scrolled ? 'is-scrolled' : ''}`}>
+        <div className="wrap tbt-header-main">
+          {/* Mobile Hamburger Button */}
+          <button
+            type="button"
+            className="mobile-menu-trigger"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open navigation menu"
+          >
+            <Menu size={22} />
+          </button>
+
+          {!isHome && (
+            <button
+              className="icon-btn header-back-btn"
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
             </button>
-            <button className="hdr-cart" onClick={() => shop.setCartOpen(true)} aria-label={`Cart, ${shop.count} items`}>
-              <span className="hdr-cart-ico"><ShoppingBag size={22} /><motion.i key={shop.count} initial={{ scale: 1.6 }} animate={{ scale: 1 }}>{shop.count}</motion.i></span>
-              <span className="hdr-cart-txt"><small>My cart</small><b>{formatINR(shop.subtotal)}</b></span>
+          )}
+
+          {/* Logo Area */}
+          <Link to="/" className="tbt-brand-link" aria-label="The Baking Tools Home">
+            <BrandLogo />
+          </Link>
+
+          {/* Global Search Bar */}
+          <div className="tbt-header-search">
+            <GlobalSearchBar />
+          </div>
+
+          {/* Header Action Icons */}
+          <div className="tbt-header-actions">
+            {/* WhatsApp Quick Order button */}
+            <a
+              href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!%20I%20would%20like%20to%20order."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tbt-wa-btn"
+              title="Chat with Store Support on WhatsApp"
+            >
+              <MessageCircle size={17} />
+              <span>WhatsApp Order</span>
+            </a>
+
+            {/* Account / Login */}
+            <button
+              type="button"
+              className="tbt-action-btn"
+              onClick={() => shop.setLoginOpen(true)}
+              aria-label="Account Login"
+            >
+              <User size={20} />
+              <div className="action-txt">
+                <small>Sign In</small>
+                <b>{shop.user ? shop.user.name.split(' ')[0] : 'Account'}</b>
+              </div>
+            </button>
+
+            {/* Wishlist Icon */}
+            <button
+              type="button"
+              className="tbt-action-btn"
+              onClick={() => shop.setWishlistOpen(true)}
+              aria-label={`Wishlist with ${shop.wishlistCount} items`}
+            >
+              <div className="action-ico-box">
+                <Heart size={20} />
+                {shop.wishlistCount > 0 && (
+                  <span className="action-badge">{shop.wishlistCount}</span>
+                )}
+              </div>
+              <div className="action-txt">
+                <small>Saved</small>
+                <b>Wishlist</b>
+              </div>
+            </button>
+
+            {/* Cart Button */}
+            <button
+              type="button"
+              className="tbt-action-btn tbt-cart-action"
+              onClick={() => shop.setCartOpen(true)}
+              aria-label={`Shopping Cart with ${shop.count} items`}
+            >
+              <div className="action-ico-box">
+                <ShoppingCart size={20} />
+                {shop.count > 0 && (
+                  <span className="action-badge badge-cart">{shop.count}</span>
+                )}
+              </div>
+              <div className="action-txt">
+                <small>{shop.count ? `${shop.count} items` : 'Bag'}</small>
+                <b>{shop.count ? formatINR(shop.subtotal) : '₹0.00'}</b>
+              </div>
             </button>
           </div>
         </div>
-        <AnimatePresence>
-          {msearch && (
-            <motion.div className="hdr-msearch-row" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-              <div className="wrap"><SearchBox autoFocus onDone={() => setMsearch(false)} /></div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <nav className="navbar" aria-label="Main">
-          <div className="wrap navbar-row">
-            <button className={`allcats ${mega ? 'on' : ''}`} onClick={() => setMega((m) => !m)} onMouseEnter={() => setMega(true)} aria-expanded={mega}>
-              <LayoutGrid size={17} /> All Categories <ChevronDown size={16} />
-            </button>
-            <NavLink to="/" end className="nav-a">Home</NavLink>
-            {NAV.map((n) => <NavLink key={n.to} to={n.to} className="nav-a">{n.label}</NavLink>)}
-            <a href="tel:+917996222111" className="nav-call"><Phone size={15} /> 7996 222111</a>
+
+        {/* Desktop Category Navigation Menu Bar */}
+        <nav className="tbt-navbar" aria-label="Category Navigation">
+          <div className="wrap tbt-nav-wrap">
+            <div className="nav-links-left">
+              {navCategories.map((cat) => (
+                <div
+                  key={cat.label}
+                  className="nav-link-item-wrap"
+                  onMouseEnter={() => cat.hasDropdown && setMouldsDropdown(true)}
+                  onMouseLeave={() => cat.hasDropdown && setMouldsDropdown(false)}
+                >
+                  <Link
+                    to={cat.to}
+                    className={`tbt-nav-link ${cat.isHighlight ? 'nav-hl' : ''} ${
+                      pathname === cat.to ? 'active' : ''
+                    }`}
+                  >
+                    <span>{cat.label}</span>
+                    {cat.hasDropdown && <ChevronDown size={14} />}
+                  </Link>
+
+                  {/* Dropdown Menu for Moulds */}
+                  {cat.hasDropdown && mouldsDropdown && (
+                    <div className="nav-dropdown-menu">
+                      <div className="dropdown-col">
+                        <b>Silicone Moulds</b>
+                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Chocolate Bar Moulds</Link>
+                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Rose &amp; Flower Moulds</Link>
+                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Alphabet &amp; Number Moulds</Link>
+                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Heart &amp; Geometric Moulds</Link>
+                      </div>
+                      <div className="dropdown-col">
+                        <b>Baking Essentials</b>
+                        <Link to={`/category/${catSlug('Baking Tools')}`}>Piping Nozzle Sets</Link>
+                        <Link to={`/category/${catSlug('Baking Tools')}`}>Cake Scrapers &amp; Smoothers</Link>
+                        <Link to={`/category/${catSlug('Cake Base & Boards')}`}>MDF Cake Boards</Link>
+                        <Link to={`/category/${catSlug('Packing Materials')}`}>Transparent Cake Boxes</Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="nav-links-right">
+              <Link to="/category/all" className="nav-deal-link">
+                <Tag size={14} />
+                <span>Special Offers &amp; Sale</span>
+              </Link>
+            </div>
           </div>
-          <AnimatePresence>{mega && <MegaMenu onClose={() => setMega(false)} />}</AnimatePresence>
         </nav>
       </header>
 
-      <MobileMenu open={mobile} onClose={() => setMobile(false)} />
-
-      <Outlet />
-
-      <footer className="ftr" id="contact">
-        <div className="ftr-news">
-          <div className="wrap ftr-news-row">
-            <div><h3>Get new arrivals &amp; demo videos first</h3><p>Subscribe for stock updates from Adi Shakti Trader.</p></div>
-            {subscribed ? <p className="ftr-thanks"><Check size={18} /> Thanks! You’re subscribed.</p> : (
-              <form onSubmit={(e) => { e.preventDefault(); if (mail.includes('@')) setSubscribed(true); }}>
-                <label className="sr-only" htmlFor="news-mail">Email address</label>
-                <Mail size={18} />
-                <input id="news-mail" type="email" required value={mail} onChange={(e) => setMail(e.target.value)} placeholder="Enter your email" />
-                <button className="btn btn-accent">Subscribe</button>
-              </form>
-            )}
-          </div>
-        </div>
-        <div className="wrap ftr-cols">
-          <div className="ftr-about">
-            <Logo light />
-            <p>Baking tools &amp; accessories for home bakers and bakeries. Choice of Home Bakers (unit of AST).</p>
-            <p className="ftr-line"><MapPin size={16} /> #39, Ground Floor, WAT Street, Beside Domino’s Pizza, Gandhi Bazaar, Basavanagudi, Bengaluru 560004</p>
-          </div>
-          <div><h4>Shop</h4>{CATEGORIES.map((c) => <Link key={c} to={`/category/${catSlug(c)}`}>{c}</Link>)}</div>
-          <div><h4>Quick links</h4><Link to="/">Home</Link><Link to="/category/new-arrivals">New Arrivals</Link><Link to="/category/all">All Products</Link><Link to="/#demos">Cake Demo Videos</Link><button className="ftr-linkbtn" onClick={() => shop.setLoginOpen(true)}>My Account</button></div>
-          <div><h4>Contact us</h4>
-            <a href="tel:+918041486443"><Phone size={14} /> 080-41486443</a>
-            <a href="tel:+917996222111"><Phone size={14} /> 7996 222111</a>
-            <a href="tel:+919242222111">Mahesh · 9242 222111</a>
-            <a href="tel:+918792222111">Rani Mahesh · 8792 222111</a>
-          </div>
-        </div>
-        <div className="ftr-bottom"><div className="wrap"><span>© {new Date().getFullYear()} Adi Shakti Trader. All rights reserved.</span><span>UPI · Cards · Cash at store</span></div></div>
-      </footer>
-
+      {/* MOBILE NAVIGATION DRAWER */}
       <AnimatePresence>
-        {top && <motion.button className="to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}><ArrowUp size={20} /></motion.button>}
-      </AnimatePresence>
-      <AnimatePresence>
-        {shop.toast && (
-          <motion.div className="toast" role="status" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
-            <img src={shop.toast.img} alt="" />
-            <div><small><Check size={13} /> Added to your cart</small><b>{shop.toast.name}</b></div>
-            <button className="btn btn-brand" onClick={() => { shop.closeToast(); shop.setCartOpen(true); }}>View cart</button>
-            <button className="icon-btn" onClick={shop.closeToast} aria-label="Dismiss"><X size={16} /></button>
+        {mobileMenuOpen && (
+          <motion.div
+            className="mob-drawer-bg"
+            onClick={() => setMobileMenuOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.aside
+              className="mob-drawer"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+            >
+              <div className="mob-drawer-head">
+                <BrandLogo />
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => setMobileMenuOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="mob-drawer-body">
+                <div className="mob-drawer-search">
+                  <GlobalSearchBar />
+                </div>
+
+                <div className="mob-drawer-section">
+                  <span className="mob-sec-title">Shop by Category</span>
+                  <div className="mob-cat-list">
+                    {navCategories.map((cat) => (
+                      <Link
+                        key={cat.label}
+                        to={cat.to}
+                        className={`mob-cat-link ${pathname === cat.to ? 'active' : ''}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span>{cat.label}</span>
+                        <ChevronRight size={16} />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mob-drawer-section">
+                  <span className="mob-sec-title">Quick Actions</span>
+                  <div className="mob-quick-links">
+                    <button
+                      type="button"
+                      className="mob-quick-link"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        shop.setWishlistOpen(true);
+                      }}
+                    >
+                      <Heart size={18} />
+                      <span>My Wishlist ({shop.wishlistCount})</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="mob-quick-link"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        shop.setLoginOpen(true);
+                      }}
+                    >
+                      <User size={18} />
+                      <span>{shop.user ? `Hi, ${shop.user.name}` : 'Login / Register'}</span>
+                    </button>
+                    <a
+                      href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mob-quick-link wa"
+                    >
+                      <MessageCircle size={18} />
+                      <span>Order on WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div className="mob-drawer-info">
+                  <p>
+                    <MapPin size={15} /> #39 WAT Street, Gandhi Bazaar, Bengaluru
+                  </p>
+                  <p>
+                    <Phone size={15} /> 080-41486443 · 7996 222111
+                  </p>
+                </div>
+              </div>
+            </motion.aside>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* MAIN VIEW CONTENT */}
+      <Outlet />
+
+      {/* FOOTER */}
+      <footer className="tbt-footer">
+        <div className="wrap">
+          {/* Trust Highlights Strip */}
+          <div className="ftr-trust-strip">
+            <div className="ftr-trust-item">
+              <Truck size={24} className="ftr-tico" />
+              <div>
+                <b>Free Shipping</b>
+                <small>On all orders above ₹1,499</small>
+              </div>
+            </div>
+            <div className="ftr-trust-item">
+              <Package size={24} className="ftr-tico" />
+              <div>
+                <b>Cash on Delivery (COD)</b>
+                <small>Available on orders over ₹299</small>
+              </div>
+            </div>
+            <div className="ftr-trust-item">
+              <ShieldCheck size={24} className="ftr-tico" />
+              <div>
+                <b>100% Food-Grade Silicone</b>
+                <small>BPA-free platinum cured moulds</small>
+              </div>
+            </div>
+            <div className="ftr-trust-item">
+              <HelpCircle size={24} className="ftr-tico" />
+              <div>
+                <b>Baker&apos;s Support Desk</b>
+                <small>Direct WhatsApp advice &amp; sizing</small>
+              </div>
+            </div>
+          </div>
+
+          <div className="ftr-main-grid">
+            {/* Column 1: Brand Info */}
+            <div className="ftr-col ftr-col-brand">
+              <BrandLogo />
+              <p className="ftr-about-txt">
+                India&apos;s dedicated online destination for baking supplies, premium silicone moulds,
+                acrylic cake toppers, piping nozzles, and pastry packaging. Trusted by 10,000+ home
+                bakers and commercial patisseries.
+              </p>
+              <div className="ftr-store-address">
+                <MapPin size={16} />
+                <span>
+                  <strong>Store:</strong> #39, Ground Floor, WAT Street, Beside Domino&apos;s Pizza,
+                  Gandhi Bazaar, Basavanagudi, Bengaluru 560004
+                </span>
+              </div>
+            </div>
+
+            {/* Column 2: Shop Categories */}
+            <div className="ftr-col">
+              <h3>Shop Categories</h3>
+              <ul className="ftr-links">
+                {CATEGORIES.map((c) => (
+                  <li key={c}>
+                    <Link to={`/category/${catSlug(c)}`}>{c}</Link>
+                  </li>
+                ))}
+                <li>
+                  <Link to="/category/new-arrivals">New Arrivals</Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Customer Care & Policies */}
+            <div className="ftr-col">
+              <h3>Customer Care</h3>
+              <ul className="ftr-links">
+                <li><Link to="/category/all">Browse All Products</Link></li>
+                <li><a href="tel:+917996222111">Track Your Order</a></li>
+                <li><a href="#faqs">Shipping &amp; Delivery Policy</a></li>
+                <li><a href="#faqs">Returns &amp; Replacement</a></li>
+                <li><a href="#faqs">Food-Grade Certification</a></li>
+                <li><a href="#faqs">Store Pickup (Basavanagudi)</a></li>
+              </ul>
+            </div>
+
+            {/* Column 4: Newsletter & Contact */}
+            <div className="ftr-col ftr-col-newsletter">
+              <h3>Stay Connected</h3>
+              <p className="ftr-news-sub">
+                Subscribe for exclusive discounts, new mould launches &amp; baking tutorials.
+              </p>
+
+              <form
+                className="ftr-newsletter-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert('Thank you for subscribing to The Baking Tools Club!');
+                }}
+              >
+                <input
+                  type="email"
+                  placeholder="Enter your email address..."
+                  required
+                  aria-label="Email for newsletter"
+                />
+                <button type="submit" className="btn btn-primary btn-sm">
+                  Subscribe
+                </button>
+              </form>
+
+              <div className="ftr-contact-block">
+                <a href="tel:+917996222111" className="ftr-contact-link">
+                  <Phone size={14} /> +91 7996 222111 / 080-41486443
+                </a>
+                <a
+                  href="https://wa.me/917996222111"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ftr-contact-link wa"
+                >
+                  <MessageCircle size={14} /> WhatsApp Support (Mon-Sat 10 AM - 8 PM)
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="ftr-bottom-bar">
+            <span>
+              © {new Date().getFullYear()} The Baking Tools Store (Adi Shakti Trader). All rights reserved.
+            </span>
+            <div className="ftr-payments">
+              <span className="pay-badge">UPI</span>
+              <span className="pay-badge">Visa</span>
+              <span className="pay-badge">Mastercard</span>
+              <span className="pay-badge">RuPay</span>
+              <span className="pay-badge">NetBanking</span>
+              <span className="pay-badge">COD</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Floating Back to Top Button */}
+      <AnimatePresence>
+        {showBackTop && (
+          <motion.button
+            className="back-to-top"
+            onClick={scrollToTop}
+            aria-label="Back to top"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ArrowUp size={20} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* MOBILE STICKY BOTTOM NAVIGATION DOCK */}
+      <nav className="mobile-dock" aria-label="Mobile Navigation">
+        <Link to="/" className={`dock-tab ${pathname === '/' ? 'active' : ''}`}>
+          <BrandLogo />
+          <span>Home</span>
+        </Link>
+        <Link
+          to="/category/all"
+          className={`dock-tab ${pathname.startsWith('/category') ? 'active' : ''}`}
+        >
+          <Package size={20} />
+          <span>Shop</span>
+        </Link>
+        <button
+          type="button"
+          className={`dock-tab ${shop.wishlistCount ? 'has-items' : ''}`}
+          onClick={() => shop.setWishlistOpen(true)}
+          aria-label="Wishlist"
+        >
+          <div className="dock-ico-wrap">
+            <Heart size={20} />
+            {shop.wishlistCount > 0 && <span className="dock-badge">{shop.wishlistCount}</span>}
+          </div>
+          <span>Wishlist</span>
+        </button>
+        <a
+          href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="dock-tab dock-wa"
+        >
+          <MessageCircle size={20} />
+          <span>WhatsApp</span>
+        </a>
+        <button
+          type="button"
+          className={`dock-tab ${shop.count ? 'has-items' : ''}`}
+          onClick={() => shop.setCartOpen(true)}
+          aria-label="View Cart"
+        >
+          <div className="dock-ico-wrap">
+            <ShoppingCart size={20} />
+            {shop.count > 0 && <span className="dock-badge">{shop.count}</span>}
+          </div>
+          <span>Bag</span>
+        </button>
+      </nav>
+
       <CartDrawer />
+      <WishlistDrawer />
       <VideoModal />
       <LoginModal />
     </>

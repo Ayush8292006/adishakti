@@ -1,7 +1,77 @@
-.intro { position: fixed; inset: 0; z-index: 1000; background: var(--brand); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
-.intro-mark { width: 84px; height: 84px; border-radius: 50%; background: var(--cream); display: grid; place-items: center; margin-bottom: 8px; }
-.intro-name { overflow: hidden; }
-.intro-name b { display: block; font-family: var(--head); font-size: clamp(34px, 8vw, 54px); font-weight: 700; letter-spacing: -0.02em; }
-.intro small { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #f2b3c8; }
-.intro-bar { width: 140px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.2); overflow: hidden; margin-top: 18px; }
-.intro-bar span { display: block; height: 100%; background: #f2b3c8; transform-origin: left; }
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.intro-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 30px;
+  text-align: center;
+}
+
+.intro-icon-mark {
+  width: 76px;
+  height: 76px;
+  border-radius: var(--radius-lg);
+  background: var(--primary);
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  box-shadow: 0 10px 25px var(--primary-glow);
+}
+
+.intro-title-wrap {
+  overflow: hidden;
+}
+
+.intro-title-wrap b {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: clamp(28px, 6vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-heading);
+}
+
+.intro-box small {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.intro-progress-track {
+  width: 140px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--border-light);
+  overflow: hidden;
+  margin-top: 18px;
+}
+
+.intro-progress-track span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  transform-origin: left;
+}
+
+.intro-tap-tip {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

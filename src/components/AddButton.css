@@ -1,14 +1,106 @@
-.addbtn { position: relative; width: 100%; height: 42px; }
-.addbtn.sm { width: 104px; height: 36px; }
-.addbtn.lg { height: 52px; }
-.add-idle { width: 100%; height: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; border: 1px solid var(--brand); background: #fff; color: var(--brand); font-family: var(--head); font-weight: 500; font-size: 13.5px; transition: background 0.25s, color 0.25s; }
-.add-idle:hover:not(:disabled) { background: var(--brand); color: #fff; }
-.add-idle:disabled { border-color: var(--line); color: var(--muted); cursor: not-allowed; }
-.addbtn.lg .add-idle { background: var(--brand); color: #fff; font-size: 15px; }
-.addbtn.lg .add-idle:hover { background: var(--brand-d); }
-.add-step { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; border-radius: 6px; background: var(--brand); color: #fff; overflow: hidden; }
-.add-step button { width: 42px; height: 100%; border: 0; background: none; color: #fff; display: grid; place-items: center; transition: background 0.2s; }
-.add-step button:hover { background: rgba(0, 0, 0, 0.18); }
-.add-step span { font-family: var(--head); font-weight: 600; font-size: 15px; }
-.addbtn.sm .add-step button { width: 32px; }
-.addbtn.sm .add-idle { font-size: 12.5px; }
+.addbtn {
+  position: relative;
+  width: 82px;
+  height: 34px;
+}
+
+.addbtn.sm {
+  width: 76px;
+  height: 30px;
+}
+
+.addbtn.lg {
+  width: 130px;
+  height: 46px;
+}
+
+.add-idle {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--primary);
+  background: var(--bg-white);
+  color: var(--primary);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  transition: all 0.2s var(--ease);
+}
+
+.add-idle:hover:not(:disabled) {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.add-idle:disabled {
+  border-color: var(--border-light);
+  color: var(--text-light);
+  cursor: not-allowed;
+}
+
+.addbtn.lg .add-idle {
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 14.5px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.addbtn.lg .add-idle:hover {
+  background: var(--primary-hover);
+}
+
+.add-step {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.add-step button {
+  width: 26px;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.add-step button:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.add-step span {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 13px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.addbtn.lg .add-step {
+  border-radius: var(--radius-md);
+}
+
+.addbtn.lg .add-step button {
+  width: 40px;
+}
+
+.addbtn.lg .add-step span {
+  font-size: 15px;
+}

@@ -1,198 +1,687 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Play, Truck, Store, BadgePercent, Video, Phone, ArrowRight } from 'lucide-react';
-import ProductCard from '../components/ProductCard.jsx';
+import {
+  ArrowRight, Play, Phone, Video, BadgePercent, Store, Sparkles,
+  ShieldCheck, Truck, MessageCircle, ChevronDown, CheckCircle2,
+  Clock, Flame, Star, Package, Heart, Award
+} from 'lucide-react';
 import Rail from '../components/Rail.jsx';
+import ProductCard from '../components/ProductCard.jsx';
 import { useShop } from '../context/ShopContext.jsx';
-import { PRODUCTS, CATEGORIES, CAT_IMG, catSlug, findProduct } from '../data/products.js';
+import { PRODUCTS, CATEGORIES, CAT_IMG, catSlug, formatINR } from '../data/products.js';
 import { VIDEOS } from '../data/videos.js';
 import './Home.css';
 
-const EASE = [0.22, 1, 0.36, 1];
-const up = (d = 0) => ({ initial: { opacity: 0, y: 26 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.2 }, transition: { duration: 0.6, delay: d, ease: EASE } });
+const EASE = [0.16, 1, 0.3, 1];
 
-/* ---------------- hero slider ---------------- */
-function Hero({ ready }) {
-  const shop = useShop();
-  const slides = [
-    { tag: 'Choice of Home Bakers', title: <>Everything your<br />cake needs</>, text: 'Moulds, toppers, piping tools, cake bases & packing — all at one counter in Gandhi Bazaar.', cta: 'Shop all products', to: '/category/all', imgs: ['ginkgo-topper', 'nozzle-set', 'rose-mould'], tone: 'brown' },
-    { tag: 'New stock arrivals', title: <>Filigree butterflies<br />&amp; rose moulds</>, text: 'Fresh on the shelf this week — gold & silver butterflies, rose and sunflower chocolate moulds.', cta: 'Shop new arrivals', to: '/category/new-arrivals', imgs: ['filigree-butterfly', 'rose-mould', 'plunger-cutter'], tone: 'cream' },
-    { tag: 'Watch before you bake', title: <>2‑minute<br />cake demos</>, text: 'See each kit in action, then add the exact products used in one tap.', cta: 'Watch a demo', video: VIDEOS[0], imgs: ['bar-mould-6', 'gold-foil', 'star-mould'], tone: 'pink' },
-  ];
-  const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => { if (paused) return undefined; const t = setInterval(() => setI((x) => (x + 1) % slides.length), 5500); return () => clearInterval(t); }, [paused, slides.length]);
-  const s = slides[i];
+const inViewAnim = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.12 },
+  transition: { duration: 0.45, delay, ease: EASE },
+});
 
-  return (
-    <section className="hero" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} aria-roledescription="carousel" aria-label="Featured">
-      <AnimatePresence mode="wait">
-        <motion.div key={i} className={`slide ${s.tone}`} initial={{ opacity: 0 }} animate={ready ? { opacity: 1 } : {}} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
-          <div className="wrap slide-in">
-            <div className="slide-copy">
-              <motion.span className="slide-tag" initial={{ opacity: 0, y: 14 }} animate={ready ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.1, duration: 0.5 }}>{s.tag}</motion.span>
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={ready ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.18, duration: 0.6, ease: EASE }}>{s.title}</motion.h1>
-              <motion.p initial={{ opacity: 0, y: 14 }} animate={ready ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.28, duration: 0.5 }}>{s.text}</motion.p>
-              <motion.div initial={{ opacity: 0, y: 14 }} animate={ready ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.36, duration: 0.5 }}>
-                {s.video
-                  ? <button className="btn slide-btn" onClick={() => shop.setVideo(s.video)}><Play size={16} fill="currentColor" /> {s.cta}</button>
-                  : <Link to={s.to} className="btn slide-btn">{s.cta} <ArrowRight size={16} /></Link>}
-              </motion.div>
-            </div>
-            <div className="slide-art" aria-hidden="true">
-              {s.imgs.map((im, k) => (
-                <motion.img key={im} src={`/products/${im}.jpg`} alt="" className={`sa sa${k + 1}`}
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={ready ? { opacity: 1, scale: 1, y: 0 } : {}} transition={{ delay: 0.2 + k * 0.1, duration: 0.7, ease: EASE }} />
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-      <button className="hero-arrow l" onClick={() => setI((x) => (x - 1 + slides.length) % slides.length)} aria-label="Previous slide"><ChevronLeft size={22} /></button>
-      <button className="hero-arrow r" onClick={() => setI((x) => (x + 1) % slides.length)} aria-label="Next slide"><ChevronRight size={22} /></button>
-      <div className="hero-dots">{slides.map((_, k) => <button key={k} className={k === i ? 'on' : ''} onClick={() => setI(k)} aria-label={`Go to slide ${k + 1}`} />)}</div>
-    </section>
-  );
-}
+const byCat = (...cats) => PRODUCTS.filter((p) => cats.includes(p.category));
 
-/* ---------------- tabbed product section ---------------- */
-function TabbedProducts({ title, sub, tabs, limit = 10 }) {
-  const [t, setT] = useState(0);
-  const list = useMemo(() => tabs[t].items.slice(0, limit), [t, tabs, limit]);
-  return (
-    <section className="wrap sec">
-      <motion.div className="sec-title" {...up()}><h2>{title}</h2>{sub && <p>{sub}</p>}</motion.div>
-      <div className="ptabs" role="tablist" aria-label={title}>
-        {tabs.map((x, k) => (
-          <button key={x.label} role="tab" aria-selected={t === k} className={t === k ? 'on' : ''} onClick={() => setT(k)}>
-            {t === k && <motion.span layoutId={`pill-${title}`} className="pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
-            <span>{x.label}</span>
-          </button>
-        ))}
-      </div>
-      <AnimatePresence mode="wait">
-        <motion.div key={t} className="pgrid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-          {list.map((p, k) => <ProductCard key={p.id} product={p} index={k} />)}
-        </motion.div>
-      </AnimatePresence>
-      {tabs[t].to && <div className="center-btn"><Link to={tabs[t].to} className="btn btn-line">View all {tabs[t].label} <ArrowRight size={16} /></Link></div>}
-    </section>
-  );
-}
+const FAQS = [
+  {
+    q: 'What is the Free Shipping policy on orders?',
+    a: 'We offer FREE PAN-India delivery on all orders above ₹1,499. For orders below ₹1,499, a flat nominal delivery charge applies. For local Bengaluru customers, same-day delivery is available via express courier.',
+  },
+  {
+    q: 'Is Cash on Delivery (COD) available?',
+    a: 'Yes! Cash on Delivery (COD) is available on all eligible orders over ₹299 across most pincodes in India. You can also pay seamlessly online via UPI, Google Pay, PhonePe, Paytm, Credit/Debit cards, or NetBanking.',
+  },
+  {
+    q: 'Are your silicone moulds certified 100% food-grade?',
+    a: 'Yes, absolutely. All our chocolate, cake, and fondant silicone moulds are manufactured from premium platinum-cured, BPA-free, food-grade silicone. They are heat-resistant from -40°C to 230°C and safe for ovens, microwaves, freezers, and dishwashers.',
+  },
+  {
+    q: 'Can I pick up my order directly from the store?',
+    a: 'Yes! You can visit our retail store at #39, WAT Street, Beside Domino\'s Pizza, Gandhi Bazaar, Basavanagudi, Bengaluru 560004. You can place your order online for in-store pickup or explore our entire 500+ items collection in person.',
+  },
+  {
+    q: 'Do you offer wholesale bulk discounts for commercial bakeries?',
+    a: 'Yes, we supply directly to commercial bakeries, home baking academies, and cloud kitchens across India. Special wholesale discounts start at 10+ units per item. Call us at 7996 222111 or chat with us on WhatsApp for our wholesale catalogue.',
+  },
+];
 
-const byCat = (c) => PRODUCTS.filter((p) => p.category === c);
-const byIds = (ids) => ids.map(findProduct).filter(Boolean);
+const TESTIMONIALS = [
+  {
+    name: 'Pooja Kashyap',
+    role: 'Home Baker, Bengaluru',
+    quote: 'The Rose Silicone Mould gives such sharp, realistic chocolate petals! Delivery was super fast and the packaging was completely damage-proof.',
+    rating: 5,
+    tag: 'Verified Buyer',
+  },
+  {
+    name: 'Chef Rahul Mehta',
+    role: 'Pastry Chef, Mumbai',
+    quote: 'We order cake boards, dowels, and acrylic boxes in bulk from The Baking Tools every month. The pricing is unbeatable and the quality is consistently top tier.',
+    rating: 5,
+    tag: 'Commercial Bakery',
+  },
+  {
+    name: 'Sneha Deshmukh',
+    role: 'Cake Artist, Pune',
+    quote: 'Their gold ginkgo toppers and piping nozzle sets elevated my wedding cakes instantly. Plus, their WhatsApp team is always ready to advise on mould sizes.',
+    rating: 5,
+    tag: 'Verified Baker',
+  },
+];
 
 export default function Home({ ready = true }) {
   const shop = useShop();
-  const recently = shop.viewed.map(findProduct).filter(Boolean);
-  const tiles = [{ label: 'New Arrivals', img: '/products/plunger-cutter.jpg', to: '/category/new-arrivals', n: PRODUCTS.filter((p) => p.isNew).length },
-    ...CATEGORIES.map((c) => ({ label: c, img: CAT_IMG[c], to: `/category/${catSlug(c)}`, n: byCat(c).length }))];
+  const [activeTab, setActiveTab] = useState('All');
+  const [openFaq, setOpenFaq] = useState(0);
+
+  // Countdown timer for Flash Sale
+  const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 28, seconds: 45 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        return { hours: 24, minutes: 0, seconds: 0 };
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const categoryCards = [
+    { label: 'Cake Moulds', img: CAT_IMG['Silicone Moulds'], to: `/category/${catSlug('Silicone Moulds')}`, count: '14 Items', tag: 'Bestseller' },
+    { label: 'Cake Toppers', img: CAT_IMG['Cake Toppers'], to: `/category/${catSlug('Cake Toppers')}`, count: '12 Items', tag: 'Popular' },
+    { label: 'Baking Tools', img: CAT_IMG['Baking Tools'], to: `/category/${catSlug('Baking Tools')}`, count: '11 Items', tag: 'Essential' },
+    { label: 'Cake Bases & Boards', img: CAT_IMG['Cake Base & Boards'], to: `/category/${catSlug('Cake Base & Boards')}`, count: '5 Items', tag: 'Heavy Duty' },
+    { label: 'Packing Materials', img: CAT_IMG['Packing Materials'], to: `/category/${catSlug('Packing Materials')}`, count: '6 Items', tag: 'Boxes & Foil' },
+    { label: 'Decoration Ribbons', img: CAT_IMG['Decoration Ribbons'], to: `/category/${catSlug('Decoration Ribbons')}`, count: '4 Items', tag: 'Luxury Satin' },
+    { label: 'Cake Stands', img: CAT_IMG['Cake Stands'], to: `/category/${catSlug('Cake Stands')}`, count: '2 Items', tag: 'Acrylic' },
+    { label: 'New Arrivals', img: '/products/plunger-cutter.jpg', to: '/category/new-arrivals', count: 'Fresh Stock', tag: 'New' },
+  ];
+
+  const filteredProducts = activeTab === 'All'
+    ? PRODUCTS.slice(0, 8)
+    : activeTab === 'Moulds'
+    ? byCat('Silicone Moulds').slice(0, 8)
+    : activeTab === 'Toppers'
+    ? byCat('Cake Toppers').slice(0, 8)
+    : activeTab === 'Tools'
+    ? byCat('Baking Tools').slice(0, 8)
+    : byCat('Packing Materials', 'Decoration Ribbons').slice(0, 8);
+
+  const spotlightItem = PRODUCTS.find((p) => p.id === 41) || PRODUCTS[0];
 
   return (
-    <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <Hero ready={ready} />
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="tbt-homepage"
+    >
+      {/* ========================================================
+          1. HERO BANNER SECTION (The Baking Tools Style)
+          ======================================================== */}
+      <section className="wrap hero-section">
+        <div className="hero-banner-card">
+          <div className="hero-copy-col">
+            <span className="hero-pill-tag">
+              <Sparkles size={13} /> India&apos;s Trusted Online Baking Supplies Store
+            </span>
 
-      {/* trust strip */}
-      <section className="trust">
-        <div className="wrap trust-row">
-          {[[Truck, 'Delivery in Bengaluru', 'Fast local delivery'], [Store, 'Store pick-up', 'Gandhi Bazaar, Basavanagudi'], [BadgePercent, 'Wholesale rates', 'For bakeries & bulk orders'], [Video, '2‑min cake demos', 'Watch before you bake']].map(([I, t, d], k) => (
-            <motion.div key={t} className="trust-item" {...up(k * 0.06)}><span><I size={22} /></span><div><b>{t}</b><small>{d}</small></div></motion.div>
-          ))}
+            <h1>Premium Cake Moulds, Toppers &amp; Baking Tools</h1>
+
+            <p className="hero-description">
+              Discover certified food-grade silicone moulds, gold acrylic toppers, precision piping
+              nozzles, MDF boards, and luxury bakery packaging at direct distributor rates.
+            </p>
+
+            <div className="hero-btn-row">
+              <a href="#categories" className="btn btn-primary btn-lg">
+                Shop Best Sellers <ArrowRight size={17} />
+              </a>
+              <Link to={`/category/${catSlug('Silicone Moulds')}`} className="btn btn-outline btn-lg">
+                Explore Moulds
+              </Link>
+              <a
+                href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!%20I%20want%20to%20order."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp btn-lg"
+              >
+                <MessageCircle size={18} /> WhatsApp Order
+              </a>
+            </div>
+
+            {/* Trust highlights */}
+            <div className="hero-trust-row">
+              <div className="htrust-item">
+                <Truck size={16} />
+                <span>Free Shipping over ₹1,499</span>
+              </div>
+              <div className="htrust-item">
+                <ShieldCheck size={16} />
+                <span>100% Food-Grade Certified</span>
+              </div>
+              <div className="htrust-item">
+                <Package size={16} />
+                <span>Cash on Delivery</span>
+              </div>
+              <div className="htrust-item">
+                <Award size={16} />
+                <span>Wholesale Rates</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-media-col" aria-hidden="true">
+            <div className="hero-product-preview-card">
+              <div className="preview-img-box">
+                <img
+                  src="/products/rose-mould.jpg"
+                  alt="Rose Silicone Mould"
+                  className="preview-main-img"
+                />
+                <span className="preview-badge-sale">SAVE 25%</span>
+              </div>
+              <div className="preview-meta">
+                <span className="preview-cat">Silicone Moulds</span>
+                <b>Rose &amp; Sunflower 3D Mould</b>
+                <div className="preview-price-row">
+                  <span className="preview-price">{formatINR(169)}</span>
+                  <span className="preview-mrp">{formatINR(225)}</span>
+                  <span className="preview-stock">✓ In Stock</span>
+                </div>
+              </div>
+
+              {/* Floating Orbit Cards */}
+              <div className="orbit-badge orbit-top">
+                <img src="/products/ginkgo-topper.jpg" alt="" />
+                <div>
+                  <small>Gold Acrylic Topper</small>
+                  <b>{formatINR(149)}</b>
+                </div>
+              </div>
+
+              <div className="orbit-badge orbit-bottom">
+                <img src="/products/nozzle-set.jpg" alt="" />
+                <div>
+                  <small>Piping Nozzle Set</small>
+                  <b>{formatINR(349)}</b>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* category tiles */}
-      <section className="wrap sec">
-        <motion.div className="sec-title" {...up()}><h2>Shop by Category</h2><p>Find exactly what you need for your next bake</p></motion.div>
-        <div className="cats">
-          {tiles.map((t, k) => (
-            <motion.div key={t.label} {...up(k * 0.04)}>
-              <Link to={t.to} className="cat">
-                <span className="cat-img"><img src={t.img} alt="" /></span>
-                <b>{t.label}</b>
-                <small>{t.n} products</small>
+      {/* ========================================================
+          2. CORE USPs STRIP
+          ======================================================== */}
+      <section className="wrap usp-strip-section">
+        <div className="usp-grid">
+          <div className="usp-item">
+            <span className="usp-icon-wrap"><Truck size={22} /></span>
+            <div className="usp-text">
+              <b>Free Delivery on ₹1,499+</b>
+              <small>Fast Pan-India &amp; same-day Bengaluru dispatch</small>
+            </div>
+          </div>
+
+          <div className="usp-item">
+            <span className="usp-icon-wrap"><ShieldCheck size={22} /></span>
+            <div className="usp-text">
+              <b>100% Food-Safe Silicone</b>
+              <small>BPA-free platinum silicone, oven &amp; freezer safe</small>
+            </div>
+          </div>
+
+          <div className="usp-item">
+            <span className="usp-icon-wrap"><BadgePercent size={22} /></span>
+            <div className="usp-text">
+              <b>Wholesale Slabs for Bakeries</b>
+              <small>Save up to 20% on bulk quantities &amp; materials</small>
+            </div>
+          </div>
+
+          <div className="usp-item">
+            <span className="usp-icon-wrap"><Video size={22} /></span>
+            <div className="usp-text">
+              <b>2-Minute Video Tutorials</b>
+              <small>Step-by-step baking demos for every mould &amp; nozzle</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          3. SHOP BY CATEGORY SHOWCASE (Clean Visual Grid)
+          ======================================================== */}
+      <section id="categories" className="wrap category-showcase-section">
+        <div className="section-header">
+          <div>
+            <h2>Shop by Category</h2>
+            <p>Explore our wide selection of cake tools, moulds, and packaging essentials</p>
+          </div>
+          <Link to="/category/all" className="section-view-all">
+            <span>View All Categories</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        <div className="cat-showcase-grid">
+          {categoryCards.map((cat, idx) => (
+            <motion.div key={cat.label} {...inViewAnim(idx * 0.04)}>
+              <Link to={cat.to} className="cat-showcase-card">
+                <div className="cat-showcase-img-wrap">
+                  <img src={cat.img} alt={cat.label} loading="lazy" />
+                  <span className="cat-card-tag">{cat.tag}</span>
+                </div>
+                <div className="cat-showcase-meta">
+                  <b>{cat.label}</b>
+                  <small>{cat.count}</small>
+                </div>
               </Link>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* new arrivals */}
-      <section className="wrap sec sec-tight">
-        <motion.div className="sec-head-row" {...up()}><h2>What’s New</h2><Link to="/category/new-arrivals" className="view-all">View all</Link></motion.div>
-        <div className="pgrid">{PRODUCTS.filter((p) => p.isNew).slice(0, 5).map((p, k) => <ProductCard key={p.id} product={p} index={k} />)}</div>
-      </section>
-
-      <TabbedProducts title="Our Baking Products" sub="Bestsellers from every shelf" tabs={[
-        { label: 'Cake Toppers', items: byCat('Cake Toppers'), to: '/category/cake-toppers' },
-        { label: 'Silicone Moulds', items: byCat('Silicone Moulds'), to: '/category/silicone-moulds' },
-        { label: 'Packing', items: [...byCat('Packing Materials'), ...byCat('Decoration Ribbons')], to: '/category/packing-materials' },
-        { label: 'Bases & Stands', items: [...byCat('Cake Base & Boards'), ...byCat('Cake Stands')], to: '/category/cake-base-and-boards' },
-      ]} />
-
-      {/* promo banners */}
-      <section className="wrap promos">
-        <motion.div className="promo p-a" {...up()}>
-          <div><small>Cake bases &amp; boards</small><h3>Stack it strong</h3><p>MDF boards, 5" &amp; 6" bases and tier dowels.</p><Link to="/category/cake-base-and-boards" className="btn btn-brand">Shop now</Link></div>
-          <img src="/products/mdf-cake-board.jpg" alt="" />
-        </motion.div>
-        <motion.div className="promo p-b" {...up(0.08)}>
-          <div><small>Packing &amp; ribbons</small><h3>Gift-ready finish</h3><p>Acrylic boxes, gold foil, satin &amp; diamond mesh ribbons.</p><Link to="/category/packing-materials" className="btn btn-brand">Shop now</Link></div>
-          <img src="/products/acrylic-box.jpg" alt="" />
-        </motion.div>
-      </section>
-
-      {/* tools block */}
-      <section className="wrap sec">
-        <div className="tools">
-          <motion.div className="tools-copy" {...up()}>
-            <small>Baking tools &amp; accessories</small>
-            <h2>Tools every baker reaches for</h2>
-            <p>Nozzle sets, smoothers, scrapers, plunger cutters, bowls and measuring sets — the everyday kit for clean, professional finishes.</p>
-            <Link to="/category/baking-tools" className="btn btn-white">Shop baking tools <ArrowRight size={16} /></Link>
+      {/* ========================================================
+          4. PROMOTIONAL FEATURE BANNERS (3-Up Grid)
+          ======================================================== */}
+      <section className="wrap promo-banners-section">
+        <div className="promo-banners-grid">
+          <motion.div className="pbanner pbanner-moulds" {...inViewAnim(0)}>
+            <div className="pbanner-copy">
+              <span className="pbanner-badge">100% Food-Grade</span>
+              <h3>Silicone Chocolate Moulds</h3>
+              <p>Rose, flower, star, heart &amp; multi-cavity bar moulds.</p>
+              <Link to={`/category/${catSlug('Silicone Moulds')}`} className="btn btn-sm btn-primary">
+                Shop Moulds &rarr;
+              </Link>
+            </div>
+            <img src="/products/rose-mould.jpg" alt="" className="pbanner-art" />
           </motion.div>
-          <div className="tools-grid">
-            {byIds([26, 38, 42, 30]).map((p, k) => <ProductCard key={p.id} product={p} index={k} />)}
-          </div>
+
+          <motion.div className="pbanner pbanner-toppers" {...inViewAnim(0.06)}>
+            <div className="pbanner-copy">
+              <span className="pbanner-badge">Celebration Decor</span>
+              <h3>Acrylic Cake Toppers</h3>
+              <p>Gold ginkgo, birthday coins, fairy dolls &amp; butterfly sets.</p>
+              <Link to={`/category/${catSlug('Cake Toppers')}`} className="btn btn-sm btn-primary">
+                Explore Toppers &rarr;
+              </Link>
+            </div>
+            <img src="/products/filigree-butterfly.jpg" alt="" className="pbanner-art" />
+          </motion.div>
+
+          <motion.div className="pbanner pbanner-packaging" {...inViewAnim(0.12)}>
+            <div className="pbanner-copy">
+              <span className="pbanner-badge">Heavy Duty &amp; Luxury</span>
+              <h3>Bakery Boxes &amp; Boards</h3>
+              <p>MDF boards, cake dowels, transparent acrylic boxes &amp; ribbons.</p>
+              <Link to={`/category/${catSlug('Packing Materials')}`} className="btn btn-sm btn-primary">
+                View Packaging &rarr;
+              </Link>
+            </div>
+            <img src="/products/acrylic-box.jpg" alt="" className="pbanner-art" />
+          </motion.div>
         </div>
       </section>
 
-      <TabbedProducts title="Chocolate & Fondant Moulds" sub="Silicone moulds for chocolates, letters and decorations" limit={5} tabs={[
-        { label: 'Chocolate moulds', items: byIds([41, 8, 9, 12, 14, 16, 46, 27]), to: '/category/silicone-moulds' },
-        { label: 'Letters & numbers', items: byIds([6, 19, 32]), to: '/category/silicone-moulds' },
-        { label: 'Fondant', items: byIds([36, 42, 38]), to: '/category/silicone-moulds' },
-      ]} />
+      {/* ========================================================
+          5. BEST-SELLING PRODUCTS WITH FILTER TABS
+          ======================================================== */}
+      <section className="wrap curated-products-section">
+        <div className="curated-header-row">
+          <div>
+            <h2>Best-Selling Baking Supplies</h2>
+            <p>Customer favorites handpicked for home bakers and commercial patisseries</p>
+          </div>
 
-      {/* demos */}
-      <section id="demos" className="demos">
-        <div className="wrap sec">
-          <motion.div className="sec-title light" {...up()}><h2>Watch Before You Bake</h2><p>Two‑minute demos with the exact products used</p></motion.div>
-          <div className="demo-grid">
-            {VIDEOS.map((v, k) => (
-              <motion.button key={v.id} className="demo" onClick={() => shop.setVideo(v)} {...up(k * 0.05)}>
-                <span className="demo-img"><img src={v.poster} alt="" /><span className="demo-play"><Play size={18} fill="currentColor" /></span><span className="demo-time">{v.duration}</span></span>
-                <b>{v.title}</b>
-                <small>{v.productIds.length} products used</small>
-              </motion.button>
+          <div className="curated-tab-list" role="tablist" aria-label="Category filter tabs">
+            {['All', 'Moulds', 'Toppers', 'Tools', 'Packaging'].map((tab) => (
+              <button
+                key={tab}
+                role="tab"
+                aria-selected={activeTab === tab}
+                className={`curated-tab-btn ${activeTab === tab ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
             ))}
           </div>
         </div>
+
+        <motion.div layout className="products-grid-container">
+          <AnimatePresence mode="popLayout">
+            {filteredProducts.map((p, i) => (
+              <motion.div
+                key={p.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.25 }}
+              >
+                <ProductCard product={p} index={i} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </section>
 
-      <Rail title="Cake Toppers" products={byCat('Cake Toppers')} to="/category/cake-toppers" />
-      <Rail title="Recently Viewed" products={recently} />
+      {/* ========================================================
+          6. FLASH SALE & DEAL OF THE WEEK WITH COUNTDOWN
+          ======================================================== */}
+      <section className="wrap flash-deal-section">
+        <motion.div className="flash-deal-card" {...inViewAnim()}>
+          <div className="flash-deal-left">
+            <div className="flash-deal-badge-row">
+              <span className="badge-pill badge-sale">
+                <Flame size={12} /> FLASH DEAL OF THE WEEK
+              </span>
+              <span className="badge-pill badge-discount">25% OFF</span>
+            </div>
 
-      {/* call band */}
-      <section className="wrap">
-        <motion.div className="callband" {...up()}>
-          <div><h3>Running a bakery or cake studio?</h3><p>Ask for wholesale rates on toppers, moulds and packing.</p></div>
-          <div className="callband-btns">
-            <a href="tel:+917996222111" className="btn btn-white"><Phone size={16} /> 7996 222111</a>
-            <a href="tel:+918041486443" className="btn btn-line light">080-41486443</a>
+            <h2>{spotlightItem.name}</h2>
+            <p className="flash-deal-desc">
+              Food-grade platinum silicone mould. Create flawless edible chocolate flowers with sharp,
+              delicate petals for cakes, cupcakes, and dessert platters.
+            </p>
+
+            <div className="flash-timer-box">
+              <span className="timer-label"><Clock size={14} /> Deal ends in:</span>
+              <div className="timer-digits">
+                <div className="digit-block">
+                  <b>{String(timeLeft.hours).padStart(2, '0')}</b>
+                  <small>Hours</small>
+                </div>
+                <span className="digit-colon">:</span>
+                <div className="digit-block">
+                  <b>{String(timeLeft.minutes).padStart(2, '0')}</b>
+                  <small>Mins</small>
+                </div>
+                <span className="digit-colon">:</span>
+                <div className="digit-block">
+                  <b>{String(timeLeft.seconds).padStart(2, '0')}</b>
+                  <small>Secs</small>
+                </div>
+              </div>
+            </div>
+
+            <div className="flash-price-row">
+              <span className="flash-current-price">{formatINR(spotlightItem.price)}</span>
+              <span className="flash-mrp">{formatINR(Math.round(spotlightItem.price * 1.35))}</span>
+              <span className="flash-save">Save {formatINR(Math.round(spotlightItem.price * 0.35))}</span>
+            </div>
+
+            <div className="flash-actions-row">
+              <Link to={`/product/${spotlightItem.id}`} className="btn btn-primary btn-lg">
+                Buy Now at Special Price
+              </Link>
+              <a
+                href={`https://wa.me/917996222111?text=Hi!%20I%20want%20to%20order%20the%20Flash%20Deal:%20${encodeURIComponent(
+                  spotlightItem.name
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp btn-lg"
+              >
+                <MessageCircle size={18} /> Order on WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <div className="flash-deal-right">
+            <img src={spotlightItem.img} alt={spotlightItem.name} />
           </div>
         </motion.div>
+      </section>
+
+      {/* ========================================================
+          7. CATEGORIZED PRODUCT RAILS
+          ======================================================== */}
+      <Rail
+        title="✨ Fresh New Arrivals"
+        subtitle="Recently unpacked and ready for immediate dispatch"
+        products={PRODUCTS.filter((p) => p.isNew)}
+        to="/category/new-arrivals"
+      />
+
+      <Rail
+        title="🎂 Celebration Cake Toppers"
+        subtitle="Acrylic, gold foil, butterfly sets, and miniature figurines"
+        products={byCat('Cake Toppers')}
+        to={`/category/${catSlug('Cake Toppers')}`}
+      />
+
+      <Rail
+        title="🍫 Silicone &amp; Chocolate Moulds"
+        subtitle="100% Certified Food-Grade Platinum Silicone"
+        products={byCat('Silicone Moulds')}
+        to={`/category/${catSlug('Silicone Moulds')}`}
+      />
+
+      {/* ========================================================
+          8. WATCH & LEARN 2-MINUTE VIDEO TUTORIALS
+          ======================================================== */}
+      <section className="wrap video-tutorials-section">
+        <div className="section-header">
+          <div>
+            <h2>Watch &amp; Learn Before You Bake</h2>
+            <p>2-minute step-by-step videos showing tools and styling techniques in action</p>
+          </div>
+        </div>
+
+        <div className="video-reels-track">
+          {VIDEOS.map((v, i) => (
+            <motion.button
+              key={v.id}
+              className="video-reel-card"
+              onClick={() => shop.setVideo(v)}
+              {...inViewAnim(i * 0.05)}
+            >
+              <div className="reel-thumb-box">
+                <img src={v.poster} alt={v.title} loading="lazy" />
+                <span className="reel-play-icon">
+                  <Play size={18} fill="currentColor" />
+                </span>
+                <span className="reel-duration-pill">{v.duration}</span>
+                <span className="reel-category-pill">{v.category}</span>
+              </div>
+              <div className="reel-meta">
+                <b>{v.title}</b>
+                <small>{v.productIds.length} Products Used &rarr;</small>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </section>
+
+      <Rail
+        title="🧁 Professional Piping Nozzles &amp; Tools"
+        subtitle="Precision stainless nozzles, scrapers, whisks &amp; bowls"
+        products={byCat('Baking Tools')}
+        to={`/category/${catSlug('Baking Tools')}`}
+      />
+
+      <Rail
+        title="📦 Sturdy Cake Bases, Boards &amp; Packaging"
+        subtitle="MDF boards, dowels, gift boxes, and wrapping foils"
+        products={byCat('Cake Base & Boards', 'Packing Materials', 'Decoration Ribbons')}
+        to={`/category/${catSlug('Cake Base & Boards')}`}
+      />
+
+      {/* ========================================================
+          9. COMMERCIAL WHOLESALE BANNER FOR BAKERIES
+          ======================================================== */}
+      <section className="wrap wholesale-tier-section">
+        <div className="wholesale-banner-card">
+          <div className="wholesale-banner-copy">
+            <span className="badge-pill badge-gold">Commercial &amp; Bulk Tier</span>
+            <h2>Are You Running a Bakery, Cloud Kitchen or Home Academy?</h2>
+            <p>
+              Get direct wholesale prices without middlemen. Save up to 20% on bulk quantities
+              of cake boards, acrylic toppers, silicone moulds, and cake packing boxes.
+            </p>
+
+            <div className="wholesale-slabs-row">
+              <div className="wholesale-slab-item">
+                <b>10+ Units</b>
+                <span>10% Off Wholesale</span>
+              </div>
+              <div className="wholesale-slab-item">
+                <b>25+ Units</b>
+                <span>15% Off Wholesale</span>
+              </div>
+              <div className="wholesale-slab-item">
+                <b>50+ Units</b>
+                <span>20% Off + Free Delivery</span>
+              </div>
+            </div>
+
+            <div className="wholesale-btn-row">
+              <a
+                href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!%20I%20run%20a%20bakery%20and%20would%20like%20your%20wholesale%20rate%20sheet."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp btn-lg"
+              >
+                <MessageCircle size={18} /> Request Wholesale Catalogue on WhatsApp
+              </a>
+              <a href="tel:+917996222111" className="btn btn-outline btn-lg">
+                <Phone size={16} /> Call 7996 222111
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          10. CUSTOMER BAKER REVIEWS & TESTIMONIALS
+          ======================================================== */}
+      <section className="wrap testimonials-section">
+        <div className="section-header">
+          <div>
+            <h2>Loved by 10,000+ Indian Bakers</h2>
+            <p>Real reviews from passionate home bakers, pastry chefs, and cake academies</p>
+          </div>
+        </div>
+
+        <div className="testimonials-grid">
+          {TESTIMONIALS.map((t, idx) => (
+            <motion.div key={t.name} className="test-card-item" {...inViewAnim(idx * 0.08)}>
+              <div className="test-card-stars">
+                {[...Array(t.rating)].map((_, i) => (
+                  <Star key={i} size={15} fill="#eab308" color="#eab308" />
+                ))}
+              </div>
+              <p className="test-card-quote">&ldquo;{t.quote}&rdquo;</p>
+              <div className="test-card-author">
+                <div className="test-card-avatar">{t.name[0]}</div>
+                <div>
+                  <b>{t.name}</b>
+                  <small>
+                    {t.role} · <span className="verified-text">✓ {t.tag}</span>
+                  </small>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================
+          11. FREQUENTLY ASKED QUESTIONS (Accordion)
+          ======================================================== */}
+      <section id="faqs" className="wrap faq-section">
+        <div className="section-header">
+          <div>
+            <h2>Frequently Asked Questions</h2>
+            <p>Everything you need to know about ordering, delivery, and food safety</p>
+          </div>
+        </div>
+
+        <div className="faq-container">
+          {FAQS.map((faq, idx) => {
+            const isOpen = openFaq === idx;
+            return (
+              <div key={faq.q} className={`faq-row-item ${isOpen ? 'is-open' : ''}`}>
+                <button
+                  type="button"
+                  className="faq-question-btn"
+                  onClick={() => setOpenFaq(isOpen ? -1 : idx)}
+                  aria-expanded={isOpen}
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown
+                    size={20}
+                    className="faq-arrow-ico"
+                    style={{
+                      transform: isOpen ? 'rotate(180deg)' : 'none',
+                      transition: 'transform 0.25s var(--ease)',
+                    }}
+                  />
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      className="faq-answer-pane"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.22, ease: EASE }}
+                    >
+                      <p>{faq.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ========================================================
+          12. VISIT STORE IN BENGALURU
+          ======================================================== */}
+      <section className="wrap store-banner-section">
+        <div className="store-banner-card">
+          <div className="store-banner-copy">
+            <span className="badge-pill badge-discount">Physical Experience Store</span>
+            <h2>Visit Us in Gandhi Bazaar, Bengaluru</h2>
+            <p>
+              Touch, inspect, and choose from over 500 moulds, toppers, and baking accessories.
+              Our friendly team is always ready to guide you with nozzle numbers and sizing.
+            </p>
+            <div className="store-location-info">
+              <span>
+                <Store size={16} /> #39 WAT Street, Beside Domino&apos;s, Gandhi Bazaar, Basavanagudi, Bengaluru
+              </span>
+              <span>
+                <Clock size={16} /> Monday to Saturday: 10:00 AM – 8:30 PM
+              </span>
+            </div>
+          </div>
+          <div className="store-banner-actions">
+            <a
+              href="https://maps.google.com/?q=Gandhi+Bazaar+Basavanagudi+Bengaluru"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary btn-lg"
+            >
+              Get Store Directions
+            </a>
+            <a href="tel:+918041486443" className="btn btn-outline btn-lg">
+              Call Store Desk
+            </a>
+          </div>
+        </div>
       </section>
     </motion.main>
   );
