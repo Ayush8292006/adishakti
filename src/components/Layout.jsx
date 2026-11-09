@@ -16,40 +16,46 @@ import AddButton from './AddButton.jsx';
 import './Layout.css';
 
 const HINTS = [
-  'chocolate moulds',
-  'rose silicone mould',
-  'acrylic cake toppers',
-  'piping nozzle set',
-  'MDF cake boards',
-  'cake boxes & packing',
-  'gold wrapper foils',
+  'Customized Toppers',
+  'Rose Silicone Moulds',
+  'Kunafa Chocolate Boxes',
+  'Piping Nozzle Sets',
+  'MDF Cake Boards',
+  'Sliding Gift Boxes',
+  'PVC Hamper Bags',
 ];
 
 export function BrandLogo() {
   return (
     <span className="blogo">
       <span className="blogo-mark" aria-hidden="true">
-        <svg viewBox="0 0 40 40" width="22" height="22">
+        {/* Whisk + Spatula heart icon styled as in screenshot */}
+        <svg viewBox="0 0 40 40" width="34" height="34">
+          <circle cx="20" cy="20" r="18" fill="#caa27d" fillOpacity="0.2" />
           <path
-            d="M10 18c-3 0-4-5 0-6 0-4 6-5 8-2 2-3 8-2 8 2 4 1 3 6 0 6v4H10z"
+            d="M13 14c-1.5 2-1 6 2 8l5 5 5-5c3-2 3.5-6 2-8-1.5-2-4-2-6 0l-1 1-1-1c-2-2-4.5-2-6 0z"
             fill="none"
-            stroke="#ffffff"
-            strokeWidth="2.4"
+            stroke="#c2185b"
+            strokeWidth="2.2"
             strokeLinejoin="round"
           />
-          <rect x="10" y="25" width="16" height="4" rx="2" fill="#ffffff" />
+          <path
+            d="M20 27v7M16 34h8M14 9l12 12"
+            stroke="#caa27d"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
         </svg>
       </span>
       <span className="blogo-text">
         <span className="blogo-name">Adi Shakti</span>
-        <span className="blogo-tag">THE BAKING TOOLS</span>
+        <span className="blogo-tag">baking tools.com</span>
       </span>
     </span>
   );
 }
 
 export const Logo = BrandLogo;
-
 
 function GlobalSearchBar() {
   const navigate = useNavigate();
@@ -95,7 +101,6 @@ function GlobalSearchBar() {
   return (
     <div className="search-container" ref={containerRef}>
       <form className="tbt-searchbar" onSubmit={handleSearchSubmit} role="search">
-        <Search size={18} className="search-ico" />
         <input
           value={q}
           onChange={(e) => {
@@ -103,8 +108,8 @@ function GlobalSearchBar() {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder={`Search ${HINTS[hint]}...`}
-          aria-label="Search for baking tools, silicone moulds, cake toppers"
+          placeholder={`Search for ${HINTS[hint]}`}
+          aria-label="Search for Customized Toppers, Cake Moulds, Packaging"
         />
         {q && (
           <button
@@ -116,8 +121,8 @@ function GlobalSearchBar() {
             <X size={15} />
           </button>
         )}
-        <button type="submit" className="search-submit-btn" aria-label="Submit search">
-          Search
+        <button type="submit" className="search-icon-btn-block" aria-label="Submit search">
+          <Search size={18} />
         </button>
       </form>
 
@@ -145,7 +150,7 @@ function GlobalSearchBar() {
             {matches.length === 0 ? (
               <div className="search-drop-none">
                 <p>No products found for “{q}”</p>
-                <small className="muted">Try searching “mould”, “topper”, or “nozzle”</small>
+                <small className="muted">Try searching “mould”, “topper”, or “box”</small>
               </div>
             ) : (
               <div className="search-drop-items">
@@ -195,7 +200,9 @@ export default function Layout() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackTop, setShowBackTop] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mouldsDropdown, setMouldsDropdown] = useState(false);
+
+  // Dropdown states for navbar categories
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -228,16 +235,85 @@ export default function Layout() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  const navCategories = [
-    { label: 'All Products', to: '/category/all' },
-    { label: 'Cake Moulds', to: `/category/${catSlug('Silicone Moulds')}`, hasDropdown: true },
-    { label: 'Cake Toppers', to: `/category/${catSlug('Cake Toppers')}` },
-    { label: 'Baking Tools', to: `/category/${catSlug('Baking Tools')}` },
-    { label: 'Cake Bases & Boards', to: `/category/${catSlug('Cake Base & Boards')}` },
-    { label: 'Packing Materials', to: `/category/${catSlug('Packing Materials')}` },
-    { label: 'Decoration Ribbons', to: `/category/${catSlug('Decoration Ribbons')}` },
-    { label: 'Cake Stands', to: `/category/${catSlug('Cake Stands')}` },
-    { label: '✨ New Arrivals', to: '/category/new-arrivals', isHighlight: true },
+  // Exact navigation menu items matching Image 3:
+  const navMenuItems = [
+    {
+      id: 'festive',
+      label: 'Diwali Collection',
+      to: `/category/${catSlug('Packing Materials')}`,
+      hasDropdown: true,
+      subItems: [
+        { label: 'PVC Hamper Boxes', to: `/category/${catSlug('Packing Materials')}` },
+        { label: 'PVC Hamper Bags', to: `/category/${catSlug('Packing Materials')}` },
+        { label: 'Sliding Gift Boxes', to: `/category/${catSlug('Packing Materials')}` },
+        { label: 'Kunafa Chocolate Boxes', to: `/category/${catSlug('Packing Materials')}` },
+        { label: 'Collapsible Gift Boxes', to: `/category/${catSlug('Packing Materials')}` },
+      ],
+    },
+    { id: 'home', label: 'Home', to: '/' },
+    {
+      id: 'bake-craft',
+      label: 'Bake Craft',
+      to: `/category/${catSlug('Silicone Moulds')}`,
+      hasDropdown: true,
+      subItems: [
+        { label: 'Silicone Cake Moulds', to: `/category/${catSlug('Silicone Moulds')}` },
+        { label: 'Chocolate Bar Moulds', to: `/category/${catSlug('Silicone Moulds')}` },
+        { label: 'Piping Nozzle Sets', to: `/category/${catSlug('Baking Tools')}` },
+        { label: 'Cake Scrapers & Smoothers', to: `/category/${catSlug('Baking Tools')}` },
+        { label: 'Measuring Sets & Bowls', to: `/category/${catSlug('Baking Tools')}` },
+      ],
+    },
+    {
+      id: 'ingredients',
+      label: 'Ingredients',
+      to: `/category/${catSlug('Silicone Moulds')}`,
+      hasDropdown: true,
+      subItems: [
+        { label: 'Food-Grade Chocolate Moulds', to: `/category/${catSlug('Silicone Moulds')}` },
+        { label: 'Fondant Plunger Cutters', to: `/category/${catSlug('Baking Tools')}` },
+        { label: 'Foil Wrapper Sheets', to: `/category/${catSlug('Packing Materials')}` },
+      ],
+    },
+    {
+      id: 'packing',
+      label: 'Packing Material',
+      to: `/category/${catSlug('Packing Materials')}`,
+      hasDropdown: true,
+      subItems: [
+        { label: 'MDF Round Cake Boards', to: `/category/${catSlug('Cake Base & Boards')}` },
+        { label: 'White Cake Bases (5", 6")', to: `/category/${catSlug('Cake Base & Boards')}` },
+        { label: 'Cake Dowels & Tier Pillars', to: `/category/${catSlug('Cake Base & Boards')}` },
+        { label: 'Transparent Acrylic Boxes', to: `/category/${catSlug('Packing Materials')}` },
+        { label: 'Gold & Colour Foil Sheets', to: `/category/${catSlug('Packing Materials')}` },
+      ],
+    },
+    {
+      id: 'party',
+      label: 'Party Supplies',
+      to: `/category/${catSlug('Cake Toppers')}`,
+      hasDropdown: true,
+      subItems: [
+        { label: 'Gold Ginkgo Leaf Topper', to: `/category/${catSlug('Cake Toppers')}` },
+        { label: 'Happy Birthday Gold Coins', to: `/category/${catSlug('Cake Toppers')}` },
+        { label: 'Filigree Butterfly Toppers', to: `/category/${catSlug('Cake Toppers')}` },
+        { label: 'Red Satin & Diamond Mesh Ribbons', to: `/category/${catSlug('Decoration Ribbons')}` },
+        { label: 'Mini Crown & Doll Toppers', to: `/category/${catSlug('Cake Toppers')}` },
+      ],
+    },
+    {
+      id: 'home-kitchen',
+      label: 'Home and Kitchen',
+      to: `/category/${catSlug('Cake Stands')}`,
+      hasDropdown: true,
+      subItems: [
+        { label: 'Transparent Acrylic Cake Stands', to: `/category/${catSlug('Cake Stands')}` },
+        { label: 'Quilted Oven Mitts', to: `/category/${catSlug('Baking Tools')}` },
+        { label: 'Stainless Steel Mixing Bowls', to: `/category/${catSlug('Baking Tools')}` },
+      ],
+    },
+    { id: 'blogs', label: 'Baking Demos & Videos', to: '/#video-section' },
+    { id: 'contact', label: 'Contact Us', to: '/#contact-footer' },
   ];
 
   return (
@@ -252,189 +328,121 @@ export default function Layout() {
         aria-valuemax="100"
       />
 
-      {/* TOP PROMOTIONAL ANNOUNCEMENT BAR */}
-      <aside className="tbt-top-bar" aria-label="Announcement">
-        <div className="wrap top-bar-wrap">
-          <div className="top-bar-left">
-            <span>✨ <strong>FREE SHIPPING</strong> on orders above ₹1,499</span>
-            <span className="top-bar-sep">|</span>
-            <span>Cash on Delivery (COD) Available</span>
-            <span className="top-bar-sep">|</span>
-            <span>⚡ Same-Day Bengaluru Delivery</span>
-          </div>
+      {/* MAIN HEADER (Warm Custard Cream #fff6e5) */}
+      <header className={`tbt-header-matched ${scrolled ? 'is-scrolled' : ''}`}>
+        {/* Row 1: Logo, Search, Hamburger & Utility Icons */}
+        <div className="tbt-header-top-row">
+          <div className="wrap header-top-wrap">
+            <div className="header-left-col">
+              <button
+                type="button"
+                className="hamburger-btn"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open navigation menu"
+              >
+                <Menu size={24} />
+              </button>
 
-          <div className="top-bar-right">
-            <a href="tel:+917996222111" className="top-util-link">
-              <Phone size={13} /> 7996 222111
-            </a>
-            <span className="top-bar-sep">|</span>
-            <a
-              href="https://wa.me/917996222111?text=Hi%2C%20I%20have%20an%20inquiry%20from%20The%20Baking%20Tools%20store"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="top-util-link"
-            >
-              <MessageCircle size={13} /> WhatsApp
-            </a>
-            <span className="top-bar-sep">|</span>
-            <span className="top-util-loc">
-              <MapPin size={13} /> Gandhi Bazaar, Bengaluru
-            </span>
-          </div>
-        </div>
-      </aside>
-
-      {/* MAIN STICKY HEADER */}
-      <header className={`tbt-header ${scrolled ? 'is-scrolled' : ''}`}>
-        <div className="wrap tbt-header-main">
-          {/* Mobile Hamburger Button */}
-          <button
-            type="button"
-            className="mobile-menu-trigger"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open navigation menu"
-          >
-            <Menu size={22} />
-          </button>
-
-          {!isHome && (
-            <button
-              className="icon-btn header-back-btn"
-              onClick={() => navigate(-1)}
-              aria-label="Go back"
-            >
-              <ArrowLeft size={20} />
-            </button>
-          )}
-
-          {/* Logo Area */}
-          <Link to="/" className="tbt-brand-link" aria-label="The Baking Tools Home">
-            <BrandLogo />
-          </Link>
-
-          {/* Global Search Bar */}
-          <div className="tbt-header-search">
-            <GlobalSearchBar />
-          </div>
-
-          {/* Header Action Icons */}
-          <div className="tbt-header-actions">
-            {/* WhatsApp Quick Order button */}
-            <a
-              href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!%20I%20would%20like%20to%20order."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="tbt-wa-btn"
-              title="Chat with Store Support on WhatsApp"
-            >
-              <MessageCircle size={17} />
-              <span>WhatsApp Order</span>
-            </a>
-
-            {/* Account / Login */}
-            <button
-              type="button"
-              className="tbt-action-btn"
-              onClick={() => shop.setLoginOpen(true)}
-              aria-label="Account Login"
-            >
-              <User size={20} />
-              <div className="action-txt">
-                <small>Sign In</small>
-                <b>{shop.user ? shop.user.name.split(' ')[0] : 'Account'}</b>
-              </div>
-            </button>
-
-            {/* Wishlist Icon */}
-            <button
-              type="button"
-              className="tbt-action-btn"
-              onClick={() => shop.setWishlistOpen(true)}
-              aria-label={`Wishlist with ${shop.wishlistCount} items`}
-            >
-              <div className="action-ico-box">
-                <Heart size={20} />
-                {shop.wishlistCount > 0 && (
-                  <span className="action-badge">{shop.wishlistCount}</span>
-                )}
-              </div>
-              <div className="action-txt">
-                <small>Saved</small>
-                <b>Wishlist</b>
-              </div>
-            </button>
-
-            {/* Cart Button */}
-            <button
-              type="button"
-              className="tbt-action-btn tbt-cart-action"
-              onClick={() => shop.setCartOpen(true)}
-              aria-label={`Shopping Cart with ${shop.count} items`}
-            >
-              <div className="action-ico-box">
-                <ShoppingCart size={20} />
-                {shop.count > 0 && (
-                  <span className="action-badge badge-cart">{shop.count}</span>
-                )}
-              </div>
-              <div className="action-txt">
-                <small>{shop.count ? `${shop.count} items` : 'Bag'}</small>
-                <b>{shop.count ? formatINR(shop.subtotal) : '₹0.00'}</b>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Desktop Category Navigation Menu Bar */}
-        <nav className="tbt-navbar" aria-label="Category Navigation">
-          <div className="wrap tbt-nav-wrap">
-            <div className="nav-links-left">
-              {navCategories.map((cat) => (
-                <div
-                  key={cat.label}
-                  className="nav-link-item-wrap"
-                  onMouseEnter={() => cat.hasDropdown && setMouldsDropdown(true)}
-                  onMouseLeave={() => cat.hasDropdown && setMouldsDropdown(false)}
+              {!isHome && (
+                <button
+                  className="icon-btn header-back-btn"
+                  onClick={() => navigate(-1)}
+                  aria-label="Go back"
                 >
-                  <Link
-                    to={cat.to}
-                    className={`tbt-nav-link ${cat.isHighlight ? 'nav-hl' : ''} ${
-                      pathname === cat.to ? 'active' : ''
-                    }`}
-                  >
-                    <span>{cat.label}</span>
-                    {cat.hasDropdown && <ChevronDown size={14} />}
-                  </Link>
+                  <ArrowLeft size={20} />
+                </button>
+              )}
 
-                  {/* Dropdown Menu for Moulds */}
-                  {cat.hasDropdown && mouldsDropdown && (
-                    <div className="nav-dropdown-menu">
-                      <div className="dropdown-col">
-                        <b>Silicone Moulds</b>
-                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Chocolate Bar Moulds</Link>
-                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Rose &amp; Flower Moulds</Link>
-                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Alphabet &amp; Number Moulds</Link>
-                        <Link to={`/category/${catSlug('Silicone Moulds')}`}>Heart &amp; Geometric Moulds</Link>
-                      </div>
-                      <div className="dropdown-col">
-                        <b>Baking Essentials</b>
-                        <Link to={`/category/${catSlug('Baking Tools')}`}>Piping Nozzle Sets</Link>
-                        <Link to={`/category/${catSlug('Baking Tools')}`}>Cake Scrapers &amp; Smoothers</Link>
-                        <Link to={`/category/${catSlug('Cake Base & Boards')}`}>MDF Cake Boards</Link>
-                        <Link to={`/category/${catSlug('Packing Materials')}`}>Transparent Cake Boxes</Link>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="nav-links-right">
-              <Link to="/category/all" className="nav-deal-link">
-                <Tag size={14} />
-                <span>Special Offers &amp; Sale</span>
+              {/* Logo Area */}
+              <Link to="/" className="brand-logo-link" aria-label="Adi Shakti Home">
+                <BrandLogo />
               </Link>
             </div>
+
+            {/* Center: Search Bar with Caramel Border & Icon */}
+            <div className="header-search-center">
+              <GlobalSearchBar />
+            </div>
+
+            {/* Right: User & Cart Icons */}
+            <div className="header-right-icons">
+              {/* Wishlist Icon */}
+              <button
+                type="button"
+                className="header-icon-action"
+                onClick={() => shop.setWishlistOpen(true)}
+                aria-label={`Wishlist (${shop.wishlistCount})`}
+                title="Wishlist"
+              >
+                <Heart size={22} />
+                {shop.wishlistCount > 0 && (
+                  <span className="header-badge">{shop.wishlistCount}</span>
+                )}
+              </button>
+
+              {/* Account / User Icon */}
+              <button
+                type="button"
+                className="header-icon-action"
+                onClick={() => shop.setLoginOpen(true)}
+                aria-label="User Account"
+                title={shop.user ? `Logged in as ${shop.user.name}` : 'Login / Register'}
+              >
+                <User size={23} />
+              </button>
+
+              {/* Shopping Cart Icon */}
+              <button
+                type="button"
+                className="header-icon-action cart-action"
+                onClick={() => shop.setCartOpen(true)}
+                aria-label={`Cart (${shop.count} items)`}
+                title="Shopping Bag"
+              >
+                <ShoppingCart size={23} />
+                {shop.count > 0 && (
+                  <span className="header-badge badge-cart">{shop.count}</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: Sub-Navbar (Apricot Cream #fae8c6 with Purple Bottom Border #7d1357) */}
+        <nav className="tbt-subnavbar" aria-label="Main Store Navigation">
+          <div className="wrap subnavbar-wrap">
+            {navMenuItems.map((item) => (
+              <div
+                key={item.id}
+                className="subnav-item-box"
+                onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.id)}
+                onMouseLeave={() => setActiveDropdown(null)}
+              >
+                <Link
+                  to={item.to}
+                  className={`subnav-link ${
+                    pathname === item.to || (item.id === 'home' && isHome) ? 'active' : ''
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {item.hasDropdown && <ChevronDown size={13} className="subnav-chevron" />}
+                </Link>
+
+                {/* Dropdown Menu */}
+                {item.hasDropdown && activeDropdown === item.id && (
+                  <div className="subnav-dropdown-flyout">
+                    <div className="flyout-links">
+                      {item.subItems.map((sub) => (
+                        <Link key={sub.label} to={sub.to} className="flyout-link">
+                          <ChevronRight size={14} className="flyout-bullet" />
+                          <span>{sub.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </nav>
       </header>
@@ -475,16 +483,16 @@ export default function Layout() {
                 </div>
 
                 <div className="mob-drawer-section">
-                  <span className="mob-sec-title">Shop by Category</span>
+                  <span className="mob-sec-title">Store Menu</span>
                   <div className="mob-cat-list">
-                    {navCategories.map((cat) => (
+                    {navMenuItems.map((item) => (
                       <Link
-                        key={cat.label}
-                        to={cat.to}
-                        className={`mob-cat-link ${pathname === cat.to ? 'active' : ''}`}
+                        key={item.id}
+                        to={item.to}
+                        className={`mob-cat-link ${pathname === item.to ? 'active' : ''}`}
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <span>{cat.label}</span>
+                        <span>{item.label}</span>
                         <ChevronRight size={16} />
                       </Link>
                     ))}
@@ -517,20 +525,20 @@ export default function Layout() {
                       <span>{shop.user ? `Hi, ${shop.user.name}` : 'Login / Register'}</span>
                     </button>
                     <a
-                      href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!"
+                      href="https://wa.me/917996222111?text=Hi%20Adi%20Shakti!"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mob-quick-link wa"
                     >
                       <MessageCircle size={18} />
-                      <span>Order on WhatsApp</span>
+                      <span>WhatsApp Order Support</span>
                     </a>
                   </div>
                 </div>
 
                 <div className="mob-drawer-info">
                   <p>
-                    <MapPin size={15} /> #39 WAT Street, Gandhi Bazaar, Bengaluru
+                    <MapPin size={15} /> #39 WAT Street, Gandhi Bazaar, Basavanagudi, Bengaluru
                   </p>
                   <p>
                     <Phone size={15} /> 080-41486443 · 7996 222111
@@ -546,7 +554,7 @@ export default function Layout() {
       <Outlet />
 
       {/* FOOTER */}
-      <footer className="tbt-footer">
+      <footer id="contact-footer" className="tbt-footer">
         <div className="wrap">
           {/* Trust Highlights Strip */}
           <div className="ftr-trust-strip">
@@ -585,9 +593,9 @@ export default function Layout() {
             <div className="ftr-col ftr-col-brand">
               <BrandLogo />
               <p className="ftr-about-txt">
-                India&apos;s dedicated online destination for baking supplies, premium silicone moulds,
-                acrylic cake toppers, piping nozzles, and pastry packaging. Trusted by 10,000+ home
-                bakers and commercial patisseries.
+                India&apos;s premier destination for cake moulds, festive packaging boxes,
+                acrylic toppers, piping nozzles, and confectionery supplies. Dispatched across India
+                from Gandhi Bazaar, Bengaluru.
               </p>
               <div className="ftr-store-address">
                 <MapPin size={16} />
@@ -600,7 +608,7 @@ export default function Layout() {
 
             {/* Column 2: Shop Categories */}
             <div className="ftr-col">
-              <h3>Shop Categories</h3>
+              <h3>Shop Collections</h3>
               <ul className="ftr-links">
                 {CATEGORIES.map((c) => (
                   <li key={c}>
@@ -622,7 +630,7 @@ export default function Layout() {
                 <li><a href="#faqs">Shipping &amp; Delivery Policy</a></li>
                 <li><a href="#faqs">Returns &amp; Replacement</a></li>
                 <li><a href="#faqs">Food-Grade Certification</a></li>
-                <li><a href="#faqs">Store Pickup (Basavanagudi)</a></li>
+                <li><a href="#faqs">Store Pickup (Gandhi Bazaar)</a></li>
               </ul>
             </div>
 
@@ -630,14 +638,14 @@ export default function Layout() {
             <div className="ftr-col ftr-col-newsletter">
               <h3>Stay Connected</h3>
               <p className="ftr-news-sub">
-                Subscribe for exclusive discounts, new mould launches &amp; baking tutorials.
+                Subscribe for festive offers, new mould launches &amp; baking tutorials.
               </p>
 
               <form
                 className="ftr-newsletter-form"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  alert('Thank you for subscribing to The Baking Tools Club!');
+                  alert('Thank you for subscribing to Adi Shakti!');
                 }}
               >
                 <input
@@ -661,7 +669,7 @@ export default function Layout() {
                   rel="noopener noreferrer"
                   className="ftr-contact-link wa"
                 >
-                  <MessageCircle size={14} /> WhatsApp Support (Mon-Sat 10 AM - 8 PM)
+                  <MessageCircle size={14} /> WhatsApp Support (Mon-Sat 10 AM - 8:30 PM)
                 </a>
               </div>
             </div>
@@ -669,7 +677,7 @@ export default function Layout() {
 
           <div className="ftr-bottom-bar">
             <span>
-              © {new Date().getFullYear()} The Baking Tools Store (Adi Shakti Trader). All rights reserved.
+              © {new Date().getFullYear()} Adi Shakti Trader (thebakingtools.com style store). All rights reserved.
             </span>
             <div className="ftr-payments">
               <span className="pay-badge">UPI</span>
@@ -726,7 +734,7 @@ export default function Layout() {
           <span>Wishlist</span>
         </button>
         <a
-          href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!"
+          href="https://wa.me/917996222111?text=Hi%20Adi%20Shakti!"
           target="_blank"
           rel="noopener noreferrer"
           className="dock-tab dock-wa"

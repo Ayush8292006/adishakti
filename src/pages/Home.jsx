@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Play, Phone, Video, BadgePercent, Store, Sparkles,
-  ShieldCheck, Truck, MessageCircle, ChevronDown, CheckCircle2,
-  Clock, Flame, Star, Package, Heart, Award
+  ShieldCheck, Truck, MessageCircle, ChevronDown, ChevronLeft, ChevronRight,
+  CheckCircle2, Clock, Flame, Star, Package, Heart, Award
 } from 'lucide-react';
 import Rail from '../components/Rail.jsx';
 import ProductCard from '../components/ProductCard.jsx';
@@ -71,6 +71,242 @@ const TESTIMONIALS = [
   },
 ];
 
+function FestiveHeroCarousel() {
+  const [slide, setSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const slides = [
+    {
+      id: 'diwali-packaging',
+      title: 'DIWALI',
+      subtitle: 'PACKAGING',
+      tag: 'Exclusive Festive Range',
+      to: `/category/${catSlug('Packing Materials')}`,
+      bannerImg: '/banners/diwali-packaging-banner.jpg',
+      themeGradient: 'radial-gradient(ellipse at 50% 50%, #b8235a 0%, #7d124e 50%, #4a062f 100%)',
+      pedestals: [
+        { id: 'pvc-box', label: 'PVC HAMPER BOX', to: `/category/${catSlug('Packing Materials')}`, x: '12%', y: '26%' },
+        { id: 'pvc-bag', label: 'PVC HAMPER BAG', to: `/category/${catSlug('Packing Materials')}`, x: '21%', y: '78%' },
+        { id: 'sliding-box', label: 'SLIDING GIFT BOX', to: `/category/${catSlug('Packing Materials')}`, x: '50%', y: '80%' },
+        { id: 'kunafa-box', label: 'KUNAFA CHOCOLATE BOX', to: `/category/${catSlug('Packing Materials')}`, x: '82%', y: '28%' },
+        { id: 'collapsible-box', label: 'COLLAPSIBLE BOXES', to: `/category/${catSlug('Packing Materials')}`, x: '78%', y: '78%' },
+      ],
+    },
+    {
+      id: 'bake-craft',
+      title: 'BAKE CRAFT',
+      subtitle: 'SILICONE MOULDS',
+      tag: '100% Certified Food Grade',
+      to: `/category/${catSlug('Silicone Moulds')}`,
+      themeGradient: 'radial-gradient(ellipse at 50% 50%, #9e1b4f 0%, #680e3c 55%, #3b0621 100%)',
+      pedestals: [
+        { id: 'rose-mould', label: '3D ROSE MOULD', to: `/category/${catSlug('Silicone Moulds')}`, img: '/products/rose-mould.jpg', price: '₹169', x: '14%', y: '30%' },
+        { id: 'bar-mould', label: 'CHOCOLATE BAR MOULD', to: `/category/${catSlug('Silicone Moulds')}`, img: '/products/bar-mould-6.jpg', price: '₹199', x: '21%', y: '74%' },
+        { id: 'nozzle-set', label: 'PIPING NOZZLE SET', to: `/category/${catSlug('Baking Tools')}`, img: '/products/nozzle-set.jpg', price: '₹349', x: '50%', y: '76%' },
+        { id: 'comb-scraper', label: 'COMB CAKE SCRAPER', to: `/category/${catSlug('Baking Tools')}`, img: '/products/comb-scraper.jpg', price: '₹129', x: '82%', y: '30%' },
+        { id: 'plunger-cutter', label: 'PLUNGER CUTTER SET', to: `/category/${catSlug('Baking Tools')}`, img: '/products/plunger-cutter.jpg', price: '₹179', x: '78%', y: '74%' },
+      ],
+    },
+    {
+      id: 'party-supplies',
+      title: 'PARTY SUPPLIES',
+      subtitle: 'CAKE TOPPERS',
+      tag: 'Mirror Gold Acrylic Collection',
+      to: `/category/${catSlug('Cake Toppers')}`,
+      themeGradient: 'radial-gradient(ellipse at 50% 50%, #851859 0%, #570b3b 55%, #300420 100%)',
+      pedestals: [
+        { id: 'ginkgo', label: 'GOLD GINKGO TOPPER', to: `/category/${catSlug('Cake Toppers')}`, img: '/products/ginkgo-topper.jpg', price: '₹149', x: '14%', y: '30%' },
+        { id: 'butterfly', label: 'FILIGREE BUTTERFLIES', to: `/category/${catSlug('Cake Toppers')}`, img: '/products/filigree-butterfly.jpg', price: '₹139', x: '21%', y: '74%' },
+        { id: 'hb-coin', label: 'BIRTHDAY GOLD COIN', to: `/category/${catSlug('Cake Toppers')}`, img: '/products/hb-coin.jpg', price: '₹119', x: '50%', y: '76%' },
+        { id: 'acrylic-stand', label: 'ACRYLIC CAKE STAND', to: `/category/${catSlug('Cake Stands')}`, img: '/products/acrylic-stand.jpg', price: '₹599', x: '82%', y: '30%' },
+        { id: 'satin-ribbon', label: 'LUXURY SATIN RIBBON', to: `/category/${catSlug('Decoration Ribbons')}`, img: '/products/satin-ribbon-red.jpg', price: '₹149', x: '78%', y: '74%' },
+      ],
+    },
+    {
+      id: 'packing-material',
+      title: 'PACKING MATERIAL',
+      subtitle: 'BOXES & BOARDS',
+      tag: 'Direct Distributor Rates',
+      to: `/category/${catSlug('Packing Materials')}`,
+      themeGradient: 'radial-gradient(ellipse at 50% 50%, #a32258 0%, #6e113f 55%, #3c0623 100%)',
+      pedestals: [
+        { id: 'mdf-board', label: 'MDF CAKE BOARD', to: `/category/${catSlug('Cake Base & Boards')}`, img: '/products/mdf-cake-board.jpg', price: '₹189', x: '14%', y: '30%' },
+        { id: 'acrylic-box', label: 'TRANSPARENT BOX', to: `/category/${catSlug('Packing Materials')}`, img: '/products/acrylic-box.jpg', price: '₹229', x: '21%', y: '74%' },
+        { id: 'gold-foil', label: 'GOLD FOIL SHEETS', to: `/category/${catSlug('Packing Materials')}`, img: '/products/gold-foil.jpg', price: '₹139', x: '50%', y: '76%' },
+        { id: 'cake-base', label: 'WHITE CAKE BASE', to: `/category/${catSlug('Cake Base & Boards')}`, img: '/products/cake-base-6.jpg', price: '₹119', x: '82%', y: '30%' },
+        { id: 'dowels', label: 'CAKE DOWEL PILLARS', to: `/category/${catSlug('Cake Base & Boards')}`, img: '/products/cake-dowels.jpg', price: '₹99', x: '78%', y: '74%' },
+      ],
+    },
+  ];
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setSlide((s) => (s + 1) % slides.length);
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [isPaused, slides.length]);
+
+  const cur = slides[slide];
+
+  return (
+    <div
+      className="festive-banner-slider-box"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="festive-banner-viewport">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={cur.id}
+            className="festive-banner-slide"
+            initial={{ opacity: 0, scale: 0.985 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.01 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            style={{ background: cur.themeGradient }}
+          >
+            {/* Slide 0: Matched exact reference banner from thebakingtools.com */}
+            {cur.bannerImg ? (
+              <div className="festive-matched-img-layer">
+                <img
+                  src={cur.bannerImg}
+                  alt="Diwali Packaging Festive Collection"
+                  className="festive-matched-bg-img"
+                />
+                {/* Interactive Hotspot Links */}
+                {cur.pedestals.map((ped) => (
+                  <Link
+                    key={ped.id}
+                    to={ped.to}
+                    className={`festive-hotspot hotspot-${ped.id}`}
+                    style={{ left: ped.x, top: ped.y }}
+                    aria-label={`Shop ${ped.label}`}
+                  >
+                    <span className="hotspot-pulse" />
+                    <span className="hotspot-pill-label">{ped.label}</span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              /* Rendered Pedestal Stage for subsequent slides */
+              <div className="festive-rendered-stage">
+                {/* Hanging Garlands Left & Right */}
+                <div className="festive-garland garland-left" aria-hidden="true">
+                  <div className="garland-flower g-orange" />
+                  <div className="garland-flower g-yellow" />
+                  <div className="garland-flower g-orange" />
+                  <div className="garland-flower g-yellow" />
+                  <div className="garland-tassel" />
+                </div>
+                <div className="festive-garland garland-right" aria-hidden="true">
+                  <div className="garland-flower g-orange" />
+                  <div className="garland-flower g-yellow" />
+                  <div className="garland-flower g-orange" />
+                  <div className="garland-flower g-yellow" />
+                  <div className="garland-tassel" />
+                </div>
+
+                {/* Ambient Center Radial Glow */}
+                <div className="festive-radial-glow" aria-hidden="true" />
+
+                {/* Central Display Serif Title */}
+                <div className="festive-center-title-group">
+                  <span className="festive-tag-sub">{cur.tag}</span>
+                  <h2 className="festive-title-main">{cur.title}</h2>
+                  <h3 className="festive-title-sub">{cur.subtitle}</h3>
+                </div>
+
+                {/* 5 Glowing Pedestals with Products */}
+                <div className="festive-pedestals-container">
+                  {cur.pedestals.map((p) => (
+                    <Link
+                      key={p.id}
+                      to={p.to}
+                      className={`festive-pedestal-link ped-pos-${p.id}`}
+                      style={{ left: p.x, top: p.y }}
+                    >
+                      <div className="pedestal-product-wrap">
+                        <img src={p.img} alt={p.label} className="pedestal-img" />
+                        {p.price && <span className="pedestal-price-chip">{p.price}</span>}
+                      </div>
+                      <div className="pedestal-disc-base" />
+                      <span className="pedestal-caption">{p.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Vertical Pill Pagination Dots (Screenshot 2 Match) */}
+            <div className="festive-vert-pagination" aria-label="Banner slides">
+              {slides.map((s, idx) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`festive-vert-dot ${slide === idx ? 'is-active' : ''}`}
+                  onClick={() => setSlide(idx)}
+                  aria-label={`Go to slide ${idx + 1}: ${s.title}`}
+                />
+              ))}
+            </div>
+
+            {/* Carousel Arrow Controls */}
+            <button
+              type="button"
+              className="festive-nav-arrow arrow-prev"
+              onClick={() => setSlide((s) => (s - 1 + slides.length) % slides.length)}
+              aria-label="Previous slide"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              type="button"
+              className="festive-nav-arrow arrow-next"
+              onClick={() => setSlide((s) => (s + 1) % slides.length)}
+              aria-label="Next slide"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Trust Highlights Strip Under Banner */}
+      <div className="festive-trust-strip">
+        <div className="ftrust-box">
+          <Truck size={18} className="ftrust-ico" />
+          <div className="ftrust-txt">
+            <b>Free Delivery</b>
+            <small>On all orders above ₹1,499</small>
+          </div>
+        </div>
+        <div className="ftrust-box">
+          <ShieldCheck size={18} className="ftrust-ico" />
+          <div className="ftrust-txt">
+            <b>100% Food Grade</b>
+            <small>Certified Platinum Silicone</small>
+          </div>
+        </div>
+        <div className="ftrust-box">
+          <Package size={18} className="ftrust-ico" />
+          <div className="ftrust-txt">
+            <b>Cash on Delivery</b>
+            <small>Available PAN-India</small>
+          </div>
+        </div>
+        <div className="ftrust-box">
+          <Award size={18} className="ftrust-ico" />
+          <div className="ftrust-txt">
+            <b>Direct Wholesale</b>
+            <small>Factory pricing on 500+ tools</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home({ ready = true }) {
   const shop = useShop();
   const [activeTab, setActiveTab] = useState('All');
@@ -122,99 +358,10 @@ export default function Home({ ready = true }) {
       className="tbt-homepage"
     >
       {/* ========================================================
-          1. HERO BANNER SECTION (The Baking Tools Style)
+          1. FESTIVE HERO CAROUSEL BANNER (Screenshot 2 Match)
           ======================================================== */}
       <section className="wrap hero-section">
-        <div className="hero-banner-card">
-          <div className="hero-copy-col">
-            <span className="hero-pill-tag">
-              <Sparkles size={13} /> India&apos;s Trusted Online Baking Supplies Store
-            </span>
-
-            <h1>Premium Cake Moulds, Toppers &amp; Baking Tools</h1>
-
-            <p className="hero-description">
-              Discover certified food-grade silicone moulds, gold acrylic toppers, precision piping
-              nozzles, MDF boards, and luxury bakery packaging at direct distributor rates.
-            </p>
-
-            <div className="hero-btn-row">
-              <a href="#categories" className="btn btn-primary btn-lg">
-                Shop Best Sellers <ArrowRight size={17} />
-              </a>
-              <Link to={`/category/${catSlug('Silicone Moulds')}`} className="btn btn-outline btn-lg">
-                Explore Moulds
-              </Link>
-              <a
-                href="https://wa.me/917996222111?text=Hi%20The%20Baking%20Tools!%20I%20want%20to%20order."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-whatsapp btn-lg"
-              >
-                <MessageCircle size={18} /> WhatsApp Order
-              </a>
-            </div>
-
-            {/* Trust highlights */}
-            <div className="hero-trust-row">
-              <div className="htrust-item">
-                <Truck size={16} />
-                <span>Free Shipping over ₹1,499</span>
-              </div>
-              <div className="htrust-item">
-                <ShieldCheck size={16} />
-                <span>100% Food-Grade Certified</span>
-              </div>
-              <div className="htrust-item">
-                <Package size={16} />
-                <span>Cash on Delivery</span>
-              </div>
-              <div className="htrust-item">
-                <Award size={16} />
-                <span>Wholesale Rates</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-media-col" aria-hidden="true">
-            <div className="hero-product-preview-card">
-              <div className="preview-img-box">
-                <img
-                  src="/products/rose-mould.jpg"
-                  alt="Rose Silicone Mould"
-                  className="preview-main-img"
-                />
-                <span className="preview-badge-sale">SAVE 25%</span>
-              </div>
-              <div className="preview-meta">
-                <span className="preview-cat">Silicone Moulds</span>
-                <b>Rose &amp; Sunflower 3D Mould</b>
-                <div className="preview-price-row">
-                  <span className="preview-price">{formatINR(169)}</span>
-                  <span className="preview-mrp">{formatINR(225)}</span>
-                  <span className="preview-stock">✓ In Stock</span>
-                </div>
-              </div>
-
-              {/* Floating Orbit Cards */}
-              <div className="orbit-badge orbit-top">
-                <img src="/products/ginkgo-topper.jpg" alt="" />
-                <div>
-                  <small>Gold Acrylic Topper</small>
-                  <b>{formatINR(149)}</b>
-                </div>
-              </div>
-
-              <div className="orbit-badge orbit-bottom">
-                <img src="/products/nozzle-set.jpg" alt="" />
-                <div>
-                  <small>Piping Nozzle Set</small>
-                  <b>{formatINR(349)}</b>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FestiveHeroCarousel />
       </section>
 
       {/* ========================================================

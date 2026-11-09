@@ -11,249 +11,451 @@
 /* ============================================================
    1. HERO BANNER SECTION
    ============================================================ */
+/* ============================================================
+   1. FESTIVE HERO CAROUSEL BANNER (Screenshot 2 Match)
+   Deep Royal Magenta / Plum Gradient · Marigold Torans · Pedestals
+   ============================================================ */
 .hero-section {
-  margin-top: 6px;
+  margin-top: 12px;
 }
 
-.hero-banner-card {
+.festive-banner-slider-box {
   position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #ffffff 0%, #fff5f6 60%, #ffedf1 100%);
-  border: 1px solid var(--border-light);
-  padding: 36px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
-  box-shadow: var(--shadow-sm);
-}
-
-.hero-copy-col {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  max-width: 640px;
-}
-
-.hero-pill-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--pastel-pink);
-  border: 1px solid rgba(226, 62, 87, 0.2);
-  color: var(--primary);
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  width: fit-content;
-  margin-bottom: 16px;
-}
-
-.hero-copy-col h1 {
-  margin: 0 0 14px;
-  font-size: clamp(26px, 4vw, 44px);
-  font-weight: 800;
-  line-height: 1.18;
-  letter-spacing: -0.025em;
-  color: var(--text-heading);
-}
-
-.hero-description {
-  margin: 0 0 24px;
-  font-size: clamp(14px, 1.4vw, 16px);
-  line-height: 1.6;
-  color: var(--text-body);
-  max-width: 540px;
-}
-
-.hero-btn-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 30px;
-}
-
-.hero-trust-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-light);
-}
-
-.htrust-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-body);
-}
-
-.htrust-item svg {
-  color: var(--primary);
-}
-
-/* Hero Media Product Showcase Card */
-.hero-media-col {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-}
-
-.hero-product-preview-card {
-  position: relative;
-  background: #ffffff;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  max-width: 320px;
   width: 100%;
-  box-shadow: var(--shadow-lg);
-}
-
-.preview-img-box {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--bg-neutral);
+  box-shadow: 0 12px 36px rgba(92, 6, 73, 0.22);
+  border: 1.5px solid #caa27d;
+  background: #4a062f;
 }
 
-.preview-main-img {
+.festive-banner-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 7.2;
+  min-height: 280px;
+  max-height: 480px;
+  overflow: hidden;
+  background: #4a062f;
+}
+
+.festive-banner-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Slide 0: Matched Exact Reference Banner Image */
+.festive-matched-img-layer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.festive-matched-bg-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
-.preview-badge-sale {
+/* Hotspots on the Matched Image */
+.festive-hotspot {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background: var(--primary);
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 10;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.hotspot-pulse {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  animation: pulseHotspot 2.2s infinite;
+}
+
+@keyframes pulseHotspot {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+  }
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.hotspot-pill-label {
+  position: relative;
+  z-index: 2;
+  background: rgba(59, 35, 20, 0.88);
+  backdrop-filter: blur(6px);
   color: #ffffff;
   font-family: var(--font-heading);
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: var(--radius-xs);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(202, 162, 125, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: all 0.22s var(--ease);
+  white-space: nowrap;
+  pointer-events: none;
 }
 
-.preview-meta {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
+.festive-hotspot:hover .hotspot-pill-label {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.preview-cat {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--text-muted);
+.festive-hotspot:hover .hotspot-pulse {
+  background: #fde68a;
+  transform: scale(1.2);
 }
 
-.preview-meta b {
-  font-family: var(--font-heading);
-  font-size: 14.5px;
-  color: var(--text-heading);
-  margin-top: 2px;
-}
-
-.preview-price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.preview-price {
-  font-family: var(--font-heading);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.preview-mrp {
-  font-size: 12px;
-  color: var(--text-light);
-  text-decoration: line-through;
-}
-
-.preview-stock {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--accent-green);
-  margin-left: auto;
-}
-
-/* Floating Orbit Badges */
-.orbit-badge {
-  position: absolute;
+/* ============================================================
+   Rendered Stage for Carousel Slides (1, 2, 3)
+   ============================================================ */
+.festive-rendered-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  border: 1px solid var(--border-light);
-  padding: 6px 12px 6px 6px;
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-md);
+  justify-content: center;
 }
 
-.orbit-badge img {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.orbit-badge div {
+/* Decorative Marigold Hanging Toran Garlands */
+.festive-garland {
+  position: absolute;
+  top: 0;
   display: flex;
   flex-direction: column;
-  line-height: 1.15;
+  align-items: center;
+  gap: 2px;
+  z-index: 5;
+  pointer-events: none;
 }
 
-.orbit-badge small {
-  font-size: 10.5px;
-  color: var(--text-muted);
+.garland-left {
+  left: 14px;
 }
 
-.orbit-badge b {
-  font-size: 12.5px;
-  color: var(--primary);
+.garland-right {
+  right: 14px;
 }
 
-.orbit-top {
-  top: -14px;
-  right: -16px;
+.garland-flower {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.orbit-bottom {
-  bottom: -14px;
-  left: -16px;
+.g-orange {
+  background: radial-gradient(circle, #ff9800 30%, #e65100 100%);
 }
 
-@media (min-width: 992px) {
-  .hero-banner-card {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 50px 60px;
-    min-height: 460px;
+.g-yellow {
+  background: radial-gradient(circle, #ffeb3b 30%, #fbc02d 100%);
+}
+
+.garland-tassel {
+  width: 6px;
+  height: 18px;
+  background: linear-gradient(to bottom, #d97706, #78350f);
+  border-radius: 0 0 3px 3px;
+}
+
+/* Radial ambient glow in center */
+.festive-radial-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(254, 240, 138, 0.18) 0%, rgba(184, 35, 90, 0.05) 50%, transparent 75%);
+  pointer-events: none;
+}
+
+/* Central Display Serif Title Group */
+.festive-center-title-group {
+  position: relative;
+  z-index: 6;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.festive-tag-sub {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fde68a;
+  margin-bottom: 2px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.festive-title-main {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 4.4vw, 46px);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5), 0 0 25px rgba(253, 230, 138, 0.3);
+}
+
+.festive-title-sub {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 3.2vw, 34px);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.09em;
+  line-height: 1.1;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* 5 Glowing Pedestals */
+.festive-pedestals-container {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.festive-pedestal-link {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease);
+}
+
+.festive-pedestal-link:hover {
+  transform: translate(-50%, -55%) scale(1.04);
+}
+
+.pedestal-product-wrap {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+}
+
+.pedestal-img {
+  width: clamp(55px, 9vw, 95px);
+  height: clamp(55px, 9vw, 95px);
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
+  transition: transform 0.22s var(--ease);
+}
+
+.festive-pedestal-link:hover .pedestal-img {
+  transform: scale(1.08);
+}
+
+.pedestal-price-chip {
+  position: absolute;
+  bottom: -4px;
+  right: -6px;
+  background: #3b2314;
+  color: #fde68a;
+  border: 1px solid #caa27d;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.pedestal-disc-base {
+  width: clamp(75px, 12vw, 130px);
+  height: clamp(14px, 2.5vw, 24px);
+  background: radial-gradient(ellipse at center, #ffffff 30%, #fef3c7 60%, rgba(202, 162, 125, 0.4) 100%);
+  border-radius: 50%;
+  margin-top: -8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 18px rgba(255, 255, 255, 0.4);
+}
+
+.pedestal-caption {
+  margin-top: 5px;
+  font-family: var(--font-serif);
+  font-size: clamp(9px, 1.2vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Vertical Pill Pagination Dots (Screenshot 2 Match)
+   ============================================================ */
+.festive-vert-pagination {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  z-index: 20;
+}
+
+.festive-vert-dot {
+  border: 0;
+  background: rgba(255, 255, 255, 0.55);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  padding: 0;
+}
+
+.festive-vert-dot:hover {
+  background: #ffffff;
+  transform: scale(1.2);
+}
+
+.festive-vert-dot.is-active {
+  background: #ffffff;
+  height: 26px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Carousel Navigation Arrows */
+.festive-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(59, 35, 20, 0.65);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.arrow-prev {
+  left: 14px;
+}
+
+.arrow-next {
+  right: 34px;
+}
+
+.festive-banner-slider-box:hover .festive-nav-arrow {
+  opacity: 1;
+}
+
+.festive-nav-arrow:hover {
+  background: rgba(194, 24, 91, 0.85);
+  border-color: #ffffff;
+}
+
+/* ============================================================
+   Trust Highlights Strip Under Banner
+   Warm Cream background (#fff6e5) matching header
+   ============================================================ */
+.festive-trust-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #fff6e5;
+  border-top: 1.5px solid #caa27d;
+  padding: 14px 24px;
+  gap: 16px;
+}
+
+.ftrust-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ftrust-ico {
+  color: #3b2314;
+  flex: none;
+}
+
+.ftrust-txt {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.ftrust-txt b {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  color: #3b2314;
+}
+
+.ftrust-txt small {
+  font-size: 11px;
+  color: #6e5443;
+}
+
+@media (max-width: 860px) {
+  .festive-banner-viewport {
+    aspect-ratio: 16 / 9;
+    min-height: 220px;
   }
-
-  .hero-copy-col {
-    max-width: 56%;
+  .festive-trust-strip {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 12px 14px;
+    gap: 12px;
   }
+  .arrow-next {
+    right: 28px;
+  }
+}
 
-  .hero-product-preview-card {
-    max-width: 330px;
+@media (max-width: 480px) {
+  .festive-banner-viewport {
+    aspect-ratio: 4 / 3;
+    min-height: 200px;
+  }
+  .festive-trust-strip {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 

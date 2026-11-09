@@ -1,77 +1,72 @@
 /* ============================================================
-   The Baking Tools & Moulds Store — Visual Design System
-   Inspired by: https://thebakingtools.com/
-   Palette: Clean White · Crisp Neutral · Bakery Coral Crimson
+   Adi Shakti — The Baking Tools & Moulds Store
+   Visual Design System matched to exact screenshots:
+   Header: Warm Custard Cream (#fff6e5), Caramel Gold (#caa27d)
+   Subnav: Apricot Cream (#fae8c6) with Festive Purple Border (#7d1357)
+   Hero: Deep Royal Magenta (#8c1464) & Gold Pedestals
    ============================================================ */
 
 :root {
-  /* Brand Primary Colors */
-  --primary: #e23e57;
-  --primary-hover: #c92f47;
-  --primary-dark: #b5223a;
-  --primary-light: #fff0f3;
-  --primary-glow: rgba(226, 62, 87, 0.22);
+  /* Brand Navigation & Header (Matched to reference) */
+  --header-bg: #fff6e5;
+  --navbar-bg: #fae8c6;
+  --navbar-border: #7d1357;
+  --search-border: #caa27d;
+  --search-btn: #caa27d;
+  --search-btn-hover: #b88d66;
 
-  /* Secondary / Slate */
-  --secondary: #1f2937;
-  --secondary-hover: #111827;
-  --secondary-light: #f3f4f6;
+  /* Rich Chocolate & Text */
+  --brown-dark: #3b2314;
+  --brown-text: #2f190d;
+  --brown-muted: #6e5443;
+  --brown-light: #947867;
 
-  /* Accents */
-  --accent-gold: #d97706;
-  --accent-gold-bg: #fffbeb;
-  --accent-green: #059669;
-  --accent-green-bg: #ecfdf5;
-  --accent-blue: #0284c7;
-  --accent-blue-bg: #f0f9ff;
+  /* Festive Magenta & Accents */
+  --primary: #c2185b;
+  --primary-hover: #a3114a;
+  --primary-festive: #8c1464;
+  --primary-light: #fef0f5;
+  --primary-glow: rgba(194, 24, 91, 0.22);
 
-  /* Text Colors */
-  --text-heading: #111827;
-  --text-body: #374151;
-  --text-muted: #6b7280;
-  --text-light: #9ca3af;
-  --text-white: #ffffff;
+  --secondary: #3b2314;
+  --secondary-hover: #221208;
+
+  /* Warm Gold / Amber */
+  --gold-accent: #d97706;
+  --gold-bg: #fef3c7;
+  --gold-border: #fde68a;
 
   /* Backgrounds */
-  --bg-body: #f8f9fa;
+  --bg-body: #fdfbf7;
   --bg-white: #ffffff;
-  --bg-neutral: #f3f4f6;
+  --bg-neutral: #fbf5ea;
   --bg-card: #ffffff;
 
-  /* Pastel Highlights */
-  --pastel-pink: #fff1f3;
-  --pastel-mint: #f0fdf4;
-  --pastel-yellow: #fefce8;
-  --pastel-blue: #f0f9ff;
-  --pastel-purple: #faf5ff;
-  --pastel-peach: #fff7ed;
-
   /* Borders */
-  --border-light: #e5e7eb;
-  --border-subtle: #f3f4f6;
-  --border-strong: #d1d5db;
+  --border-light: #eeddc8;
+  --border-subtle: #f7ecd9;
+  --border-strong: #d5bfa7;
 
   /* Geometry */
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
+  --radius-lg: 18px;
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 25px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.03);
-  --shadow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.09);
+  --shadow-xs: 0 1px 2px 0 rgba(59, 35, 20, 0.04);
+  --shadow-sm: 0 2px 5px 0 rgba(59, 35, 20, 0.06);
+  --shadow-md: 0 4px 12px -2px rgba(59, 35, 20, 0.08);
+  --shadow-lg: 0 12px 28px -4px rgba(59, 35, 20, 0.12);
+  --shadow-card-hover: 0 12px 24px -4px rgba(59, 35, 20, 0.12);
 
   /* Easing */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Fonts */
   --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Cinzel', 'Playfair Display', Georgia, serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Layout */
@@ -96,7 +91,7 @@ html, body {
 body {
   margin: 0;
   background: var(--bg-body);
-  color: var(--text-body);
+  color: var(--brown-dark);
   font-family: var(--font-body);
   font-size: 14.5px;
   line-height: 1.55;
@@ -106,7 +101,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  color: var(--text-heading);
+  color: var(--brown-dark);
   font-weight: 700;
   letter-spacing: -0.015em;
 }
@@ -120,11 +115,11 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--bg-neutral);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
+  background: var(--search-border);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--brown-muted);
 }
 
 img {
@@ -161,7 +156,7 @@ input, select, textarea {
 }
 
 .muted {
-  color: var(--text-muted);
+  color: var(--brown-muted);
 }
 
 .sr-only {
@@ -174,7 +169,7 @@ input, select, textarea {
 }
 
 /* ============================================================
-   BUTTON SYSTEM
+   BUTTONS
    ============================================================ */
 .btn {
   display: inline-flex;
@@ -212,9 +207,9 @@ input, select, textarea {
 }
 
 .btn-secondary {
-  background: var(--secondary);
+  background: var(--brown-dark);
   color: #ffffff;
-  border-color: var(--secondary);
+  border-color: var(--brown-dark);
 }
 
 .btn-secondary:hover {
@@ -225,13 +220,13 @@ input, select, textarea {
 .btn-outline {
   background: var(--bg-white);
   border-color: var(--border-light);
-  color: var(--text-heading);
+  color: var(--brown-dark);
 }
 
 .btn-outline:hover {
   border-color: var(--primary);
   color: var(--primary);
-  background: var(--pastel-pink);
+  background: var(--primary-light);
 }
 
 .btn-whatsapp {
@@ -244,7 +239,6 @@ input, select, textarea {
 .btn-whatsapp:hover {
   background: #20ba5a;
   border-color: #20ba5a;
-  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
 }
 
 .btn-sm {
@@ -255,9 +249,9 @@ input, select, textarea {
 }
 
 .btn-lg {
-  height: 50px;
-  padding: 0 26px;
-  font-size: 15px;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 14.5px;
   border-radius: var(--radius-md);
 }
 
@@ -277,7 +271,7 @@ input, select, textarea {
   border: 0;
   background: none;
   transition: all 0.2s;
-  color: var(--text-body);
+  color: var(--brown-dark);
 }
 
 .icon-btn:hover {
@@ -285,9 +279,7 @@ input, select, textarea {
   color: var(--primary);
 }
 
-/* ============================================================
-   SECTION HEADERS
-   ============================================================ */
+/* Section Header */
 .section-header {
   display: flex;
   align-items: flex-end;
@@ -301,13 +293,13 @@ input, select, textarea {
   font-size: clamp(20px, 2.5vw, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--text-heading);
+  color: var(--brown-dark);
 }
 
 .section-header p {
   margin: 4px 0 0;
   font-size: 13.5px;
-  color: var(--text-muted);
+  color: var(--brown-muted);
 }
 
 .section-view-all {
@@ -318,9 +310,10 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--pastel-pink);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: var(--primary-light);
+  border: 1px solid rgba(194, 24, 91, 0.15);
   transition: all 0.2s;
   white-space: nowrap;
 }
@@ -347,24 +340,18 @@ input, select, textarea {
 }
 
 .badge-discount {
-  background: var(--pastel-pink);
+  background: var(--primary-light);
   color: var(--primary);
-  border: 1px solid rgba(226, 62, 87, 0.2);
-}
-
-.badge-instock {
-  background: var(--accent-green-bg);
-  color: var(--accent-green);
-  border: 1px solid rgba(5, 150, 105, 0.2);
+  border: 1px solid rgba(194, 24, 91, 0.2);
 }
 
 .badge-gold {
-  background: var(--accent-gold-bg);
-  color: var(--accent-gold);
-  border: 1px solid rgba(217, 119, 6, 0.25);
+  background: var(--gold-bg);
+  color: var(--gold-accent);
+  border: 1px solid var(--gold-border);
 }
 
-/* Back to Top floating button */
+/* Back to Top */
 .back-to-top {
   position: fixed;
   right: 20px;
@@ -375,7 +362,7 @@ input, select, textarea {
   border-radius: 50%;
   border: 1px solid var(--border-light);
   background: var(--bg-white);
-  color: var(--text-heading);
+  color: var(--brown-dark);
   display: grid;
   place-items: center;
   box-shadow: var(--shadow-lg);

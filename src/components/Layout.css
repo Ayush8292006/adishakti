@@ -83,64 +83,64 @@
 }
 
 /* ============================================================
-   MAIN STICKY HEADER
+   EXACT "THE BAKING TOOLS" HEADER MATCH (Screenshot 3)
+   Top Bar: #fff6e5 | Sub-Nav: #fae8c6 | Purple Strip: #7d1357
+   Search Border & Button: #caa27d | Text: #3b2314
    ============================================================ */
-.tbt-header {
+.tbt-header-matched {
   position: sticky;
   top: 0;
-  z-index: 60;
-  background: var(--bg-white);
-  border-bottom: 1px solid var(--border-light);
+  z-index: 80;
+  background: #fff6e5;
   transition: box-shadow 0.25s var(--ease);
 }
 
-.tbt-header.is-scrolled {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+.tbt-header-matched.is-scrolled {
+  box-shadow: 0 4px 20px rgba(59, 35, 20, 0.12);
 }
 
-.tbt-header-main {
+.tbt-header-top-row {
+  background: #fff6e5;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(202, 162, 125, 0.22);
+}
+
+.header-top-wrap {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding-block: 12px;
+  gap: 16px;
 }
 
-/* Mobile Hamburger Button */
-.mobile-menu-trigger {
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light);
-  background: var(--bg-white);
-  color: var(--text-heading);
-  flex: none;
-  cursor: pointer;
-}
-
-.mobile-menu-trigger:hover {
-  background: var(--bg-neutral);
-  color: var(--primary);
-}
-
-.header-back-btn {
-  margin-left: -6px;
-  flex: none;
-}
-
-@media (min-width: 1024px) {
-  .mobile-menu-trigger {
-    display: none;
-  }
-}
-
-/* Brand Logo */
-.tbt-brand-link {
+.header-left-col {
   display: flex;
   align-items: center;
+  gap: 12px;
   flex: none;
+}
+
+.hamburger-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: transparent;
+  color: #3b2314;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.hamburger-btn:hover {
+  background: rgba(202, 162, 125, 0.2);
+  color: #c2185b;
+}
+
+.brand-logo-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .blogo {
@@ -152,48 +152,41 @@
 .blogo-mark {
   width: 38px;
   height: 38px;
-  border-radius: var(--radius-sm);
-  background: var(--primary);
   display: grid;
   place-items: center;
   flex: none;
-  box-shadow: 0 2px 8px var(--primary-glow);
-  transition: transform 0.22s var(--ease);
-}
-
-.tbt-brand-link:hover .blogo-mark {
-  transform: scale(1.05);
 }
 
 .blogo-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .blogo-name {
   font-family: var(--font-heading);
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--text-heading);
+  color: #3b2314;
 }
 
 .blogo-tag {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--primary);
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #b5603a;
+  text-transform: lowercase;
 }
 
 /* ============================================================
    GLOBAL SEARCH BAR & LIVE DROPDOWN
+   Pill shaped with caramel border and button (Screenshot 3)
    ============================================================ */
-.tbt-header-search {
+.header-search-center {
   flex: 1;
-  max-width: 580px;
-  margin-inline: 14px;
+  max-width: 660px;
+  margin: 0 16px;
 }
 
 .search-container {
@@ -204,23 +197,19 @@
 .tbt-searchbar {
   display: flex;
   align-items: center;
-  background: var(--bg-neutral);
-  border: 1.5px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: 0 4px 0 14px;
-  height: 44px;
-  transition: all 0.2s var(--ease);
+  background: #ffffff;
+  border: 1.5px solid #caa27d;
+  border-radius: 9999px;
+  height: 42px;
+  padding: 0 0 0 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s;
 }
 
 .tbt-searchbar:focus-within {
-  background: var(--bg-white);
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-glow);
-}
-
-.search-ico {
-  color: var(--text-muted);
-  flex: none;
+  border-color: #b58055;
+  box-shadow: 0 0 0 3px rgba(202, 162, 125, 0.35);
 }
 
 .tbt-searchbar input {
@@ -231,43 +220,239 @@
   outline: none;
   background: transparent;
   font-size: 14px;
-  padding: 0 10px;
-  color: var(--text-heading);
+  padding: 0 10px 0 0;
+  color: #3b2314;
+}
+
+.tbt-searchbar input::placeholder {
+  color: #a38d7b;
+  font-size: 13.5px;
 }
 
 .search-clear-btn {
   border: 0;
   background: none;
-  color: var(--text-muted);
+  color: #a38d7b;
   padding: 4px;
   display: grid;
   place-items: center;
   cursor: pointer;
   border-radius: 50%;
+  margin-right: 4px;
 }
 
 .search-clear-btn:hover {
-  background: var(--border-light);
-  color: var(--text-heading);
+  background: #f5ebe0;
+  color: #3b2314;
 }
 
-.search-submit-btn {
-  height: 36px;
-  padding: 0 18px;
-  border-radius: var(--radius-sm);
+.search-icon-btn-block {
+  width: 48px;
+  height: 100%;
   border: 0;
-  background: var(--primary);
-  color: #ffffff;
-  font-family: var(--font-heading);
-  font-size: 13.5px;
-  font-weight: 600;
+  background: #caa27d;
+  color: #3b2314;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.15s;
   flex: none;
 }
 
-.search-submit-btn:hover {
-  background: var(--primary-hover);
+.search-icon-btn-block:hover {
+  background: #ba8e66;
+  color: #1a0f08;
+}
+
+/* ============================================================
+   RIGHT UTILITY ACTIONS (Wishlist, Account, Cart)
+   ============================================================ */
+.header-right-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.header-icon-action {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: #3b2314;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.header-icon-action:hover {
+  background: rgba(202, 162, 125, 0.22);
+  color: #c2185b;
+}
+
+.header-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: #c2185b;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  padding: 0 3px;
+  border: 2px solid #fff6e5;
+}
+
+.header-badge.badge-cart {
+  background: #8c1464;
+}
+
+/* ============================================================
+   SUB-NAVBAR (Row 2 - Apricot Cream with 3px Purple Border)
+   ============================================================ */
+.tbt-subnavbar {
+  background: #fae8c6;
+  border-bottom: 3px solid #7d1357;
+  padding: 0;
+  position: relative;
+}
+
+.subnavbar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  min-height: 40px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.subnavbar-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.subnav-item-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.subnav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 4px;
+  font-family: var(--font-heading);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #3b2314;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.subnav-link:hover,
+.subnav-link.active {
+  color: #8c1464;
+}
+
+.subnav-chevron {
+  color: #63432d;
+  transition: transform 0.2s;
+}
+
+.subnav-item-box:hover .subnav-chevron {
+  transform: rotate(180deg);
+  color: #8c1464;
+}
+
+/* Subnav Dropdown Flyout */
+.subnav-dropdown-flyout {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 240px;
+  background: #ffffff;
+  border: 1px solid #ebd7bf;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  padding: 8px 0;
+  z-index: 95;
+  animation: fadeInDown 0.18s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flyout-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.flyout-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  color: #3b2314;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.flyout-link:hover {
+  background: #fff6e5;
+  color: #8c1464;
+  padding-left: 22px;
+}
+
+.flyout-bullet {
+  color: #caa27d;
+  flex: none;
+}
+
+@media (max-width: 860px) {
+  .tbt-subnavbar {
+    display: none;
+  }
+  .header-search-center {
+    margin: 0 8px;
+  }
+  .blogo-name {
+    font-size: 17px;
+  }
+  .blogo-tag {
+    font-size: 8.5px;
+  }
+  .tbt-searchbar {
+    height: 38px;
+    padding-left: 12px;
+  }
+  .search-icon-btn-block {
+    width: 40px;
+  }
+  .header-right-icons {
+    gap: 6px;
+  }
+  .header-icon-action {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 /* Search Live Dropdown */

@@ -13,8 +13,8 @@ export default function Intro({ onDone }) {
       className="intro-overlay"
       onClick={onDone}
       role="status"
-      aria-label="Loading The Baking Tools"
-      exit={{ opacity: 0, scale: 1.02, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
+      aria-label="Loading Adi Shakti"
+      exit={{ opacity: 0, scale: 1.02, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
     >
       <motion.div
         className="intro-box"
@@ -23,7 +23,7 @@ export default function Intro({ onDone }) {
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="intro-icon-mark">
-          <svg viewBox="0 0 40 40" width="44" height="44" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="46" height="46" aria-hidden="true">
             <path
               d="M10 18c-3 0-4-5 0-6 0-4 6-5 8-2 2-3 8-2 8 2 4 1 3 6 0 6v4H10z"
               fill="none"
@@ -41,7 +41,7 @@ export default function Intro({ onDone }) {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.15, duration: 0.4 }}
           >
-            The Baking Tools
+            Adi Shakti
           </motion.b>
         </div>
 
@@ -50,7 +50,7 @@ export default function Intro({ onDone }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.28 }}
         >
-          Cake Moulds · Toppers · Baking Supplies
+          Baking Tools · Moulds · Cake Accessories
         </motion.small>
 
         <div className="intro-progress-track">
