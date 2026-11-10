@@ -29,8 +29,9 @@
 .lm-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
+.lm-logo .blogo img { height: 96px; }
 
 .lm-tabs {
   display: grid;

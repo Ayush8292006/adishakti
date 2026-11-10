@@ -11,8 +11,12 @@
 .hdr.stuck { box-shadow: 0 2px 10px rgba(0, 0, 0, .08); }
 .hdr-in {
   display: grid; grid-template-columns: 1fr minmax(320px, 620px) 1fr;
-  align-items: center; gap: 20px; min-height: 88px;
+  align-items: center; gap: 20px; min-height: 100px; padding-top: 6px; padding-bottom: 6px;
 }
+.hdr-logo { transition: transform .25s; }
+.hdr-logo:hover { transform: scale(1.03); }
+.hdr.stuck .blogo img { height: 66px; }
+.hdr .blogo img { transition: height .25s; }
 .hdr-left { display: flex; align-items: center; gap: 6px; }
 .hdr-burger { display: none; }
 .hdr-logo { display: inline-flex; }
@@ -28,13 +32,10 @@
 .hdr-msearch-row .wrap { padding-bottom: 12px; }
 
 /* logo */
-.blogo { display: inline-flex; align-items: center; gap: 10px; }
-.blogo-mark { width: 54px; height: 54px; flex: none; }
-.blogo-text { display: flex; flex-direction: column; line-height: 1; }
-.blogo-name { font-family: var(--font-heading); font-weight: 700; font-size: 25px; color: var(--announce); letter-spacing: .01em; }
-.blogo-tag { margin-top: 5px; font-size: 9.5px; font-weight: 700; letter-spacing: .2em; color: var(--caramel); }
-.blogo.compact .blogo-mark { width: 40px; height: 40px; }
-.blogo.compact .blogo-name { font-size: 20px; }
+.blogo { display: block; line-height: 0; }
+.blogo img { display: block; height: 84px; width: auto; }
+.blogo.compact img { height: 62px; }
+.blogo.ftr-logo img { height: 130px; }
 
 /* ================= Search ================= */
 .hsearch { position: relative; width: 100%; }
@@ -169,7 +170,8 @@ button.hsearch-mic:hover { color: var(--badge-sold); }
 @media (max-width: 1023px) {
   .hnav { display: none; }
   .hdr-burger { display: inline-grid; }
-  .hdr-in { grid-template-columns: auto 1fr auto; min-height: 66px; gap: 8px; }
+  .hdr-in { grid-template-columns: auto 1fr auto; min-height: 76px; gap: 8px; }
+  .hdr .blogo img, .hdr.stuck .blogo img { height: 64px; }
   .hdr-left { grid-column: 1; }
   .hdr-search { display: none; }
   .hdr-msearch-row { display: block; border-bottom: 1px solid rgba(0, 0, 0, .06); }
@@ -181,13 +183,12 @@ button.hsearch-mic:hover { color: var(--badge-sold); }
   .ann { font-size: 12.5px; }
   .ann-in { grid-template-columns: 1fr; }
   .ann-side { display: none; }
-  .hdr-in { min-height: 60px; }
+  .hdr-in { min-height: 64px; padding-top: 4px; padding-bottom: 4px; }
+  .hdr .blogo img, .hdr.stuck .blogo img { height: 56px; }
+  .blogo.ftr-logo img { height: 110px; }
   .hdr-icons { gap: 0; }
   .hdr-icons .icon-btn { width: 36px; height: 36px; }
   .hdr-wish { display: none !important; }
-  .blogo-mark { width: 40px; height: 40px; }
-  .blogo-name { font-size: 19px; }
-  .blogo-tag { font-size: 7.5px; letter-spacing: .14em; }
   /* ---- mobile search ---- */
   .hdr-msearch-row .wrap { padding-top: 2px; padding-bottom: 10px; }
   .hsearch-form { height: 42px; border-radius: 8px; }

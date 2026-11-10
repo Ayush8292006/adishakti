@@ -33,20 +33,13 @@ const MENU = [
 ];
 
 /* ---------------- Brand logo ---------------- */
-export function BrandLogo({ compact = false }) {
+// Official Adi Shakti Trader logo (public/logo.webp, PNG fallback)
+export function BrandLogo({ compact = false, className = '' }) {
   return (
-    <span className={`blogo ${compact ? 'compact' : ''}`}>
-      <svg className="blogo-mark" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="30" fill="#fff" stroke="#ba7143" strokeWidth="2" />
-        <path d="M20 27c-5 0-6-8 0-9 0-6 9-8 12-3 3-5 12-3 12 3 6 1 5 9 0 9v5H20z" fill="none" stroke="#793a00" strokeWidth="2.6" strokeLinejoin="round" />
-        <rect x="22" y="38" width="20" height="8" rx="2" fill="#ba7143" />
-        <rect x="20" y="46" width="24" height="3" rx="1.5" fill="#793a00" />
-      </svg>
-      <span className="blogo-text">
-        <span className="blogo-name">Adi Shakti</span>
-        <span className="blogo-tag">TRADER · BAKING TOOLS</span>
-      </span>
-    </span>
+    <picture className={`blogo ${compact ? 'compact' : ''} ${className}`}>
+      <source srcSet="/logo.webp" type="image/webp" />
+      <img src="/logo.png" alt="Adi Shakti Trader — Baking Tools & Accessories" width="446" height="360" decoding="async" />
+    </picture>
   );
 }
 export const Logo = BrandLogo;
@@ -253,7 +246,7 @@ export default function Layout() {
       <footer className="ftr">
         <div className="wrap ftr-grid">
           <div className="ftr-col ftr-brand">
-            <BrandLogo />
+            <BrandLogo className="ftr-logo" />
             <p>Choice of Home Bakers — a unit of Adi Shakti Trader. Cake toppers, silicone moulds, baking tools, cake boards, packaging and ribbons.</p>
             <div className="ftr-social">
               <a href={WA} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><MessageCircle size={17} /></a>

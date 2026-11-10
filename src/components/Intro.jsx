@@ -13,7 +13,7 @@ export default function Intro({ onDone }) {
       className="intro-overlay"
       onClick={onDone}
       role="status"
-      aria-label="Loading Adi Shakti"
+      aria-label="Loading Adi Shakti Trader"
       exit={{ opacity: 0, scale: 1.02, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
     >
       <motion.div
@@ -22,36 +22,15 @@ export default function Intro({ onDone }) {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="intro-icon-mark">
-          <svg viewBox="0 0 40 40" width="46" height="46" aria-hidden="true">
-            <path
-              d="M10 18c-3 0-4-5 0-6 0-4 6-5 8-2 2-3 8-2 8 2 4 1 3 6 0 6v4H10z"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-            />
-            <rect x="10" y="25" width="16" height="4" rx="2" fill="#ffffff" />
-          </svg>
-        </div>
-
-        <div className="intro-title-wrap">
-          <motion.b
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.15, duration: 0.4 }}
-          >
-            Adi Shakti
-          </motion.b>
-        </div>
-
-        <motion.small
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.28 }}
+        <motion.picture
+          className="intro-logo"
+          initial={{ y: 12, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.45 }}
         >
-          Baking Tools · Moulds · Cake Accessories
-        </motion.small>
+          <source srcSet="/logo.webp" type="image/webp" />
+          <img src="/logo.png" alt="Adi Shakti Trader" width="446" height="360" />
+        </motion.picture>
 
         <div className="intro-progress-track">
           <motion.span
