@@ -158,7 +158,6 @@ export default function Layout() {
   const { pathname } = useLocation();
   const [ann, setAnn] = useState(0);
   const [menu, setMenu] = useState(false);
-  const [mSearch, setMSearch] = useState(false);
   const [showTop, setShowTop] = useState(false);
   const [stuck, setStuck] = useState(false);
 
@@ -172,7 +171,7 @@ export default function Layout() {
     window.addEventListener('scroll', s, { passive: true });
     return () => window.removeEventListener('scroll', s);
   }, []);
-  useEffect(() => { setMenu(false); setMSearch(false); }, [pathname]);
+  useEffect(() => { setMenu(false); }, [pathname]);
 
   const byCat = (c) => PRODUCTS.filter((p) => p.category === c);
 
@@ -207,7 +206,6 @@ export default function Layout() {
           <div className="hdr-search"><SearchBar /></div>
 
           <div className="hdr-icons">
-            <button className="icon-btn hdr-msearch" onClick={() => setMSearch((v) => !v)} aria-label="Search"><Search size={22} /></button>
             <button className="icon-btn" onClick={() => shop.setLoginOpen(true)} aria-label="Account"><User size={23} /></button>
             <button className="icon-btn hdr-wish" onClick={() => shop.setWishlistOpen(true)} aria-label="Wishlist">
               <Heart size={22} />
@@ -220,13 +218,10 @@ export default function Layout() {
           </div>
         </div>
 
-        <AnimatePresence>
-          {mSearch && (
-            <motion.div className="hdr-msearch-row" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-              <div className="wrap"><SearchBar onDone={() => setMSearch(false)} /></div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Mobile / tablet: always-visible search row under the header */}
+        <div className="hdr-msearch-row">
+          <div className="wrap"><SearchBar /></div>
+        </div>
 
         {/* Desktop nav */}
         <nav className="hnav" aria-label="Categories">
@@ -295,6 +290,11 @@ export default function Layout() {
               <li><Phone size={16} /><span>Mahesh: <a href="tel:+919242222111">9242 222111</a><br />Rani Mahesh: <a href="tel:+918792222111">8792 222111</a></span></li>
               <li><Mail size={16} /><span>GSTIN: 29ANDPR3394Q1Z0</span></li>
             </ul>
+            <div className="ftr-actions">
+              <a href="tel:+918041486443"><Phone size={16} /> Call</a>
+              <a href={WA} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} /> WhatsApp</a>
+              <a href="https://www.google.com/maps/search/?api=1&query=Adi+Shakti+Trader+WAT+Street+Gandhi+Bazaar+Basavanagudi+Bengaluru+560004" target="_blank" rel="noopener noreferrer"><MapPin size={16} /> Directions</a>
+            </div>
           </div>
         </div>
         <div className="ftr-bottom">

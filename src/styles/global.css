@@ -305,8 +305,8 @@ input, select, textarea { font: inherit; color: inherit; }
 
 @media (max-width: 767px) {
   .wa-float .wa-label { display: none; }
-  .wa-float { bottom: 76px; left: 12px; }
-  .back-to-top { bottom: 76px; right: 12px; width: 42px; height: 42px; }
+  .wa-float { bottom: 16px; left: 12px; }
+  .back-to-top { bottom: 16px; right: 12px; width: 42px; height: 42px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
