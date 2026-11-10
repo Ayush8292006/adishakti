@@ -1,10 +1,9 @@
-import { useEffect, useState, useRef } from 'react';
-import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, ShoppingCart, ChevronDown, ChevronRight, User, MapPin,
-  ArrowLeft, ArrowUp, MessageCircle, Sparkles, Truck, Phone, X,
-  Heart, Menu, Tag, Package, HelpCircle, ShieldCheck
+  Search, ShoppingCart, ChevronDown, User, Menu, X, Mic, ArrowUp, Heart,
+  Phone, MapPin, MessageCircle, Instagram, Facebook, Youtube, Mail, ChevronRight,
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext.jsx';
 import { CATEGORIES, PRODUCTS, formatINR, catSlug } from '../data/products.js';
@@ -12,176 +11,105 @@ import CartDrawer from './CartDrawer.jsx';
 import WishlistDrawer from './WishlistDrawer.jsx';
 import VideoModal from './VideoModal.jsx';
 import LoginModal from './LoginModal.jsx';
-import AddButton from './AddButton.jsx';
 import './Layout.css';
 
-const HINTS = [
-  'Customized Toppers',
-  'Rose Silicone Moulds',
-  'Kunafa Chocolate Boxes',
-  'Piping Nozzle Sets',
-  'MDF Cake Boards',
-  'Sliding Gift Boxes',
-  'PVC Hamper Bags',
+const WA = 'https://wa.me/917996222111?text=Hi%20Adi%20Shakti%20Trader!';
+
+const ANNOUNCEMENTS = [
+  'Welcome to Adi Shakti Trader — Choice of Home Bakers',
+  'Visit us at Gandhi Bazaar, Basavanagudi, Bengaluru',
+  'Order booking: 080-41486443 · 7996 222111',
 ];
 
-export function BrandLogo() {
+// Desktop menu: category groups with a dropdown
+const MENU = [
+  { label: 'Cake Toppers', cat: 'Cake Toppers' },
+  { label: 'Moulds', cat: 'Silicone Moulds' },
+  { label: 'Baking Tools', cat: 'Baking Tools' },
+  { label: 'Cake Base & Boards', cat: 'Cake Base & Boards' },
+  { label: 'Packaging', cat: 'Packing Materials' },
+  { label: 'Ribbons', cat: 'Decoration Ribbons' },
+  { label: 'Cake Stands', cat: 'Cake Stands' },
+];
+
+/* ---------------- Brand logo ---------------- */
+export function BrandLogo({ compact = false }) {
   return (
-    <span className="blogo">
-      <span className="blogo-mark" aria-hidden="true">
-        {/* Whisk + Spatula heart icon styled as in screenshot */}
-        <svg viewBox="0 0 40 40" width="34" height="34">
-          <circle cx="20" cy="20" r="18" fill="#caa27d" fillOpacity="0.2" />
-          <path
-            d="M13 14c-1.5 2-1 6 2 8l5 5 5-5c3-2 3.5-6 2-8-1.5-2-4-2-6 0l-1 1-1-1c-2-2-4.5-2-6 0z"
-            fill="none"
-            stroke="#c2185b"
-            strokeWidth="2.2"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M20 27v7M16 34h8M14 9l12 12"
-            stroke="#caa27d"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </span>
+    <span className={`blogo ${compact ? 'compact' : ''}`}>
+      <svg className="blogo-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="30" fill="#fff" stroke="#ba7143" strokeWidth="2" />
+        <path d="M20 27c-5 0-6-8 0-9 0-6 9-8 12-3 3-5 12-3 12 3 6 1 5 9 0 9v5H20z" fill="none" stroke="#793a00" strokeWidth="2.6" strokeLinejoin="round" />
+        <rect x="22" y="38" width="20" height="8" rx="2" fill="#ba7143" />
+        <rect x="20" y="46" width="24" height="3" rx="1.5" fill="#793a00" />
+      </svg>
       <span className="blogo-text">
         <span className="blogo-name">Adi Shakti</span>
-        <span className="blogo-tag">baking tools.com</span>
+        <span className="blogo-tag">TRADER · BAKING TOOLS</span>
       </span>
     </span>
   );
 }
-
 export const Logo = BrandLogo;
+export const Wordmark = BrandLogo;
 
-function GlobalSearchBar() {
+/* ---------------- Search ---------------- */
+function SearchBar({ onDone }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
   const [q, setQ] = useState(pathname === '/search' ? params.get('q') || '' : '');
-  const [hint, setHint] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const box = useRef(null);
 
   useEffect(() => {
-    const t = setInterval(() => setHint((h) => (h + 1) % HINTS.length), 2600);
-    return () => clearInterval(t);
+    const h = (e) => { if (box.current && !box.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
   }, []);
-
-  useEffect(() => {
-    if (pathname !== '/search') setQ('');
-    setIsOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
+  useEffect(() => { setOpen(false); if (pathname !== '/search') setQ(''); }, [pathname]);
 
   const matches = q.trim().length > 1
-    ? PRODUCTS.filter((p) => `${p.name} ${p.category}`.toLowerCase().includes(q.toLowerCase())).slice(0, 5)
+    ? PRODUCTS.filter((p) => `${p.name} ${p.category}`.toLowerCase().includes(q.toLowerCase())).slice(0, 6)
     : [];
 
-  const handleSearchSubmit = (e) => {
-    if (e) e.preventDefault();
-    if (q.trim()) {
-      navigate(`/search?q=${encodeURIComponent(q.trim())}`);
-      setIsOpen(false);
-    }
+  const submit = (e) => {
+    e.preventDefault();
+    if (!q.trim()) return;
+    navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+    setOpen(false);
+    onDone && onDone();
   };
 
   return (
-    <div className="search-container" ref={containerRef}>
-      <form className="tbt-searchbar" onSubmit={handleSearchSubmit} role="search">
+    <div className="hsearch" ref={box}>
+      <form onSubmit={submit} role="search" className="hsearch-form">
         <input
           value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
-          placeholder={`Search for ${HINTS[hint]}`}
-          aria-label="Search for Customized Toppers, Cake Moulds, Packaging"
+          onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder="Search for products..."
+          aria-label="Search products"
         />
-        {q && (
-          <button
-            type="button"
-            className="search-clear-btn"
-            onClick={() => setQ('')}
-            aria-label="Clear search"
-          >
-            <X size={15} />
-          </button>
+        {q ? (
+          <button type="button" className="hsearch-mic" onClick={() => setQ('')} aria-label="Clear"><X size={16} /></button>
+        ) : (
+          <span className="hsearch-mic" aria-hidden="true"><Mic size={17} /></span>
         )}
-        <button type="submit" className="search-icon-btn-block" aria-label="Submit search">
-          <Search size={18} />
-        </button>
+        <button type="submit" className="hsearch-btn" aria-label="Search"><Search size={19} strokeWidth={2.4} /></button>
       </form>
-
-      {/* Live Dropdown Preview */}
       <AnimatePresence>
-        {isOpen && q.trim().length > 1 && (
-          <motion.div
-            className="search-drop-menu"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            transition={{ duration: 0.18 }}
-          >
-            <div className="search-drop-bar">
-              <span>Matching Products ({matches.length})</span>
-              <button
-                type="button"
-                className="search-drop-x"
-                onClick={() => setIsOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-
-            {matches.length === 0 ? (
-              <div className="search-drop-none">
-                <p>No products found for “{q}”</p>
-                <small className="muted">Try searching “mould”, “topper”, or “box”</small>
-              </div>
-            ) : (
-              <div className="search-drop-items">
-                {matches.map((item) => (
-                  <div key={item.id} className="search-drop-row">
-                    <Link
-                      to={`/product/${item.id}`}
-                      className="search-drop-link"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <img src={item.img} alt="" className="search-drop-thumb" />
-                      <div className="search-drop-info">
-                        <span className="search-drop-name">{item.name}</span>
-                        <span className="search-drop-cat">{item.category}</span>
-                        <span className="search-drop-price">{formatINR(item.price)}</span>
-                      </div>
-                    </Link>
-                    <div className="search-drop-action">
-                      <AddButton id={item.id} name={item.name} size="sm" />
-                    </div>
-                  </div>
-                ))}
-                <Link
-                  to={`/search?q=${encodeURIComponent(q.trim())}`}
-                  className="search-drop-view-all"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <span>View all results for “{q}”</span>
-                  <ChevronRight size={16} />
-                </Link>
-              </div>
+        {open && q.trim().length > 1 && (
+          <motion.div className="hsearch-drop" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            {matches.length === 0 && <p className="hsearch-empty">No products found for “{q}”</p>}
+            {matches.map((p) => (
+              <Link key={p.id} to={`/product/${p.id}`} className="hsearch-item" onClick={() => onDone && onDone()}>
+                <img src={p.img} alt="" />
+                <span><b>{p.name}</b><small>{p.category}</small></span>
+                <em>{formatINR(p.price)}</em>
+              </Link>
+            ))}
+            {matches.length > 0 && (
+              <button type="button" className="hsearch-all" onClick={submit}>View all results <ChevronRight size={14} /></button>
             )}
           </motion.div>
         )}
@@ -190,576 +118,230 @@ function GlobalSearchBar() {
   );
 }
 
+/* ---------------- Mobile drawer menu ---------------- */
+function MobileMenu({ open, onClose }) {
+  const shop = useShop();
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div className="mm-scrim" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+          <motion.aside className="mm" initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'tween', duration: 0.28 }}>
+            <div className="mm-head">
+              <BrandLogo compact />
+              <button className="icon-btn" onClick={onClose} aria-label="Close menu"><X size={22} /></button>
+            </div>
+            <nav className="mm-links">
+              <Link to="/" onClick={onClose}>Home</Link>
+              <Link to="/category/all" onClick={onClose}>Shop All</Link>
+              <Link to="/category/new-arrivals" onClick={onClose}>New Arrivals</Link>
+              {CATEGORIES.map((c) => (
+                <Link key={c} to={`/category/${catSlug(c)}`} onClick={onClose}>{c}<ChevronRight size={16} /></Link>
+              ))}
+            </nav>
+            <div className="mm-foot">
+              <button className="btn btn-primary" onClick={() => { onClose(); shop.setLoginOpen(true); }}>
+                <User size={16} /> {shop.user ? `Hi, ${shop.user.name || 'Baker'}` : 'Login / Sign up'}
+              </button>
+              <a href="tel:+918041486443" className="mm-call"><Phone size={15} /> 080-41486443</a>
+            </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ---------------- Layout ---------------- */
 export default function Layout() {
   const shop = useShop();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const isHome = pathname === '/';
-
-  const [scrolled, setScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [showBackTop, setShowBackTop] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Dropdown states for navbar categories
-  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [ann, setAnn] = useState(0);
+  const [menu, setMenu] = useState(false);
+  const [mSearch, setMSearch] = useState(false);
+  const [showTop, setShowTop] = useState(false);
+  const [stuck, setStuck] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const y = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? (y / docHeight) * 100 : 0;
-
-      setScrollProgress(progress);
-      setScrolled(y > 20);
-      setShowBackTop(y > 350);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const t = setInterval(() => setAnn((a) => (a + 1) % ANNOUNCEMENTS.length), 3500);
+    return () => clearInterval(t);
   }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    document.body.style.overflow =
-      shop.cartOpen || shop.wishlistOpen || shop.video || shop.loginOpen || mobileMenuOpen
-        ? 'hidden'
-        : '';
-  }, [shop.cartOpen, shop.wishlistOpen, shop.video, shop.loginOpen, mobileMenuOpen]);
+    const s = () => { setShowTop(window.scrollY > 500); setStuck(window.scrollY > 40); };
+    s();
+    window.addEventListener('scroll', s, { passive: true });
+    return () => window.removeEventListener('scroll', s);
+  }, []);
+  useEffect(() => { setMenu(false); setMSearch(false); }, [pathname]);
 
-  // Close mobile drawer on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
-  // Exact navigation menu items matching Image 3:
-  const navMenuItems = [
-    {
-      id: 'festive',
-      label: 'Diwali Collection',
-      to: `/category/${catSlug('Packing Materials')}`,
-      hasDropdown: true,
-      subItems: [
-        { label: 'PVC Hamper Boxes', to: `/category/${catSlug('Packing Materials')}` },
-        { label: 'PVC Hamper Bags', to: `/category/${catSlug('Packing Materials')}` },
-        { label: 'Sliding Gift Boxes', to: `/category/${catSlug('Packing Materials')}` },
-        { label: 'Kunafa Chocolate Boxes', to: `/category/${catSlug('Packing Materials')}` },
-        { label: 'Collapsible Gift Boxes', to: `/category/${catSlug('Packing Materials')}` },
-      ],
-    },
-    { id: 'home', label: 'Home', to: '/' },
-    {
-      id: 'bake-craft',
-      label: 'Bake Craft',
-      to: `/category/${catSlug('Silicone Moulds')}`,
-      hasDropdown: true,
-      subItems: [
-        { label: 'Silicone Cake Moulds', to: `/category/${catSlug('Silicone Moulds')}` },
-        { label: 'Chocolate Bar Moulds', to: `/category/${catSlug('Silicone Moulds')}` },
-        { label: 'Piping Nozzle Sets', to: `/category/${catSlug('Baking Tools')}` },
-        { label: 'Cake Scrapers & Smoothers', to: `/category/${catSlug('Baking Tools')}` },
-        { label: 'Measuring Sets & Bowls', to: `/category/${catSlug('Baking Tools')}` },
-      ],
-    },
-    {
-      id: 'ingredients',
-      label: 'Ingredients',
-      to: `/category/${catSlug('Silicone Moulds')}`,
-      hasDropdown: true,
-      subItems: [
-        { label: 'Food-Grade Chocolate Moulds', to: `/category/${catSlug('Silicone Moulds')}` },
-        { label: 'Fondant Plunger Cutters', to: `/category/${catSlug('Baking Tools')}` },
-        { label: 'Foil Wrapper Sheets', to: `/category/${catSlug('Packing Materials')}` },
-      ],
-    },
-    {
-      id: 'packing',
-      label: 'Packing Material',
-      to: `/category/${catSlug('Packing Materials')}`,
-      hasDropdown: true,
-      subItems: [
-        { label: 'MDF Round Cake Boards', to: `/category/${catSlug('Cake Base & Boards')}` },
-        { label: 'White Cake Bases (5", 6")', to: `/category/${catSlug('Cake Base & Boards')}` },
-        { label: 'Cake Dowels & Tier Pillars', to: `/category/${catSlug('Cake Base & Boards')}` },
-        { label: 'Transparent Acrylic Boxes', to: `/category/${catSlug('Packing Materials')}` },
-        { label: 'Gold & Colour Foil Sheets', to: `/category/${catSlug('Packing Materials')}` },
-      ],
-    },
-    {
-      id: 'party',
-      label: 'Party Supplies',
-      to: `/category/${catSlug('Cake Toppers')}`,
-      hasDropdown: true,
-      subItems: [
-        { label: 'Gold Ginkgo Leaf Topper', to: `/category/${catSlug('Cake Toppers')}` },
-        { label: 'Happy Birthday Gold Coins', to: `/category/${catSlug('Cake Toppers')}` },
-        { label: 'Filigree Butterfly Toppers', to: `/category/${catSlug('Cake Toppers')}` },
-        { label: 'Red Satin & Diamond Mesh Ribbons', to: `/category/${catSlug('Decoration Ribbons')}` },
-        { label: 'Mini Crown & Doll Toppers', to: `/category/${catSlug('Cake Toppers')}` },
-      ],
-    },
-    {
-      id: 'home-kitchen',
-      label: 'Home and Kitchen',
-      to: `/category/${catSlug('Cake Stands')}`,
-      hasDropdown: true,
-      subItems: [
-        { label: 'Transparent Acrylic Cake Stands', to: `/category/${catSlug('Cake Stands')}` },
-        { label: 'Quilted Oven Mitts', to: `/category/${catSlug('Baking Tools')}` },
-        { label: 'Stainless Steel Mixing Bowls', to: `/category/${catSlug('Baking Tools')}` },
-      ],
-    },
-    { id: 'blogs', label: 'Baking Demos & Videos', to: '/#video-section' },
-    { id: 'contact', label: 'Contact Us', to: '/#contact-footer' },
-  ];
+  const byCat = (c) => PRODUCTS.filter((p) => p.category === c);
 
   return (
     <>
-      {/* Scroll Depth Progress Bar */}
-      <div
-        className="top-scroll-line"
-        style={{ width: `${scrollProgress}%` }}
-        role="progressbar"
-        aria-valuenow={Math.round(scrollProgress)}
-        aria-valuemin="0"
-        aria-valuemax="100"
-      />
+      {/* Announcement bar */}
+      <div className="ann">
+        <div className="wrap ann-in">
+          <span className="ann-side" />
+          <AnimatePresence mode="wait">
+            <motion.p key={ann} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
+              {ANNOUNCEMENTS[ann]}
+            </motion.p>
+          </AnimatePresence>
+          <span className="ann-side ann-social">
+            <a href={WA} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><MessageCircle size={15} /></a>
+            <a href="#" aria-label="Instagram"><Instagram size={15} /></a>
+            <a href="#" aria-label="Facebook"><Facebook size={15} /></a>
+            <a href="#" aria-label="YouTube"><Youtube size={15} /></a>
+          </span>
+        </div>
+      </div>
 
-      {/* MAIN HEADER (Warm Custard Cream #fff6e5) */}
-      <header className={`tbt-header-matched ${scrolled ? 'is-scrolled' : ''}`}>
-        {/* Row 1: Logo, Search, Hamburger & Utility Icons */}
-        <div className="tbt-header-top-row">
-          <div className="wrap header-top-wrap">
-            <div className="header-left-col">
-              <button
-                type="button"
-                className="hamburger-btn"
-                onClick={() => setMobileMenuOpen(true)}
-                aria-label="Open navigation menu"
-              >
-                <Menu size={24} />
-              </button>
+      {/* Header */}
+      <header className={`hdr ${stuck ? 'stuck' : ''}`}>
+        <div className="wrap hdr-in">
+          <div className="hdr-left">
+            <button className="icon-btn hdr-burger" onClick={() => setMenu(true)} aria-label="Open menu"><Menu size={24} /></button>
+            <Link to="/" className="hdr-logo" aria-label="Adi Shakti Trader home"><BrandLogo /></Link>
+          </div>
 
-              {!isHome && (
-                <button
-                  className="icon-btn header-back-btn"
-                  onClick={() => navigate(-1)}
-                  aria-label="Go back"
-                >
-                  <ArrowLeft size={20} />
-                </button>
-              )}
+          <div className="hdr-search"><SearchBar /></div>
 
-              {/* Logo Area */}
-              <Link to="/" className="brand-logo-link" aria-label="Adi Shakti Home">
-                <BrandLogo />
-              </Link>
-            </div>
-
-            {/* Center: Search Bar with Caramel Border & Icon */}
-            <div className="header-search-center">
-              <GlobalSearchBar />
-            </div>
-
-            {/* Right: User & Cart Icons */}
-            <div className="header-right-icons">
-              {/* Wishlist Icon */}
-              <button
-                type="button"
-                className="header-icon-action"
-                onClick={() => shop.setWishlistOpen(true)}
-                aria-label={`Wishlist (${shop.wishlistCount})`}
-                title="Wishlist"
-              >
-                <Heart size={22} />
-                {shop.wishlistCount > 0 && (
-                  <span className="header-badge">{shop.wishlistCount}</span>
-                )}
-              </button>
-
-              {/* Account / User Icon */}
-              <button
-                type="button"
-                className="header-icon-action"
-                onClick={() => shop.setLoginOpen(true)}
-                aria-label="User Account"
-                title={shop.user ? `Logged in as ${shop.user.name}` : 'Login / Register'}
-              >
-                <User size={23} />
-              </button>
-
-              {/* Shopping Cart Icon */}
-              <button
-                type="button"
-                className="header-icon-action cart-action"
-                onClick={() => shop.setCartOpen(true)}
-                aria-label={`Cart (${shop.count} items)`}
-                title="Shopping Bag"
-              >
-                <ShoppingCart size={23} />
-                {shop.count > 0 && (
-                  <span className="header-badge badge-cart">{shop.count}</span>
-                )}
-              </button>
-            </div>
+          <div className="hdr-icons">
+            <button className="icon-btn hdr-msearch" onClick={() => setMSearch((v) => !v)} aria-label="Search"><Search size={22} /></button>
+            <button className="icon-btn" onClick={() => shop.setLoginOpen(true)} aria-label="Account"><User size={23} /></button>
+            <button className="icon-btn hdr-wish" onClick={() => shop.setWishlistOpen(true)} aria-label="Wishlist">
+              <Heart size={22} />
+              {shop.wishlistCount > 0 && <span className="hdr-count">{shop.wishlistCount}</span>}
+            </button>
+            <button className="icon-btn" onClick={() => shop.setCartOpen(true)} aria-label="Cart">
+              <ShoppingCart size={23} />
+              <span className="hdr-count">{shop.count}</span>
+            </button>
           </div>
         </div>
 
-        {/* Row 2: Sub-Navbar (Apricot Cream #fae8c6 with Purple Bottom Border #7d1357) */}
-        <nav className="tbt-subnavbar" aria-label="Main Store Navigation">
-          <div className="wrap subnavbar-wrap">
-            {navMenuItems.map((item) => (
-              <div
-                key={item.id}
-                className="subnav-item-box"
-                onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.id)}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <Link
-                  to={item.to}
-                  className={`subnav-link ${
-                    pathname === item.to || (item.id === 'home' && isHome) ? 'active' : ''
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {item.hasDropdown && <ChevronDown size={13} className="subnav-chevron" />}
-                </Link>
+        <AnimatePresence>
+          {mSearch && (
+            <motion.div className="hdr-msearch-row" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+              <div className="wrap"><SearchBar onDone={() => setMSearch(false)} /></div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-                {/* Dropdown Menu */}
-                {item.hasDropdown && activeDropdown === item.id && (
-                  <div className="subnav-dropdown-flyout">
-                    <div className="flyout-links">
-                      {item.subItems.map((sub) => (
-                        <Link key={sub.label} to={sub.to} className="flyout-link">
-                          <ChevronRight size={14} className="flyout-bullet" />
-                          <span>{sub.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
+        {/* Desktop nav */}
+        <nav className="hnav" aria-label="Categories">
+          <div className="wrap hnav-in">
+            <NavLink to="/" end className="hnav-link">Home</NavLink>
+            {MENU.map((m) => (
+              <div className="hnav-item" key={m.cat}>
+                <NavLink to={`/category/${catSlug(m.cat)}`} className="hnav-link">
+                  {m.label} <ChevronDown size={14} />
+                </NavLink>
+                <div className="hnav-drop">
+                  {byCat(m.cat).slice(0, 8).map((p) => (
+                    <Link key={p.id} to={`/product/${p.id}`}>{p.name}</Link>
+                  ))}
+                  <Link to={`/category/${catSlug(m.cat)}`} className="hnav-drop-all">View all {m.label}</Link>
+                </div>
               </div>
             ))}
+            <NavLink to="/category/new-arrivals" className="hnav-link">New Arrivals</NavLink>
           </div>
         </nav>
       </header>
 
-      {/* MOBILE NAVIGATION DRAWER */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            className="mob-drawer-bg"
-            onClick={() => setMobileMenuOpen(false)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.aside
-              className="mob-drawer"
-              onClick={(e) => e.stopPropagation()}
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-            >
-              <div className="mob-drawer-head">
-                <BrandLogo />
-                <button
-                  type="button"
-                  className="icon-btn"
-                  onClick={() => setMobileMenuOpen(false)}
-                  aria-label="Close menu"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+      <MobileMenu open={menu} onClose={() => setMenu(false)} />
 
-              <div className="mob-drawer-body">
-                <div className="mob-drawer-search">
-                  <GlobalSearchBar />
-                </div>
+      <main className="main"><Outlet /></main>
 
-                <div className="mob-drawer-section">
-                  <span className="mob-sec-title">Store Menu</span>
-                  <div className="mob-cat-list">
-                    {navMenuItems.map((item) => (
-                      <Link
-                        key={item.id}
-                        to={item.to}
-                        className={`mob-cat-link ${pathname === item.to ? 'active' : ''}`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <span>{item.label}</span>
-                        <ChevronRight size={16} />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mob-drawer-section">
-                  <span className="mob-sec-title">Quick Actions</span>
-                  <div className="mob-quick-links">
-                    <button
-                      type="button"
-                      className="mob-quick-link"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        shop.setWishlistOpen(true);
-                      }}
-                    >
-                      <Heart size={18} />
-                      <span>My Wishlist ({shop.wishlistCount})</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="mob-quick-link"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        shop.setLoginOpen(true);
-                      }}
-                    >
-                      <User size={18} />
-                      <span>{shop.user ? `Hi, ${shop.user.name}` : 'Login / Register'}</span>
-                    </button>
-                    <a
-                      href="https://wa.me/917996222111?text=Hi%20Adi%20Shakti!"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mob-quick-link wa"
-                    >
-                      <MessageCircle size={18} />
-                      <span>WhatsApp Order Support</span>
-                    </a>
-                  </div>
-                </div>
-
-                <div className="mob-drawer-info">
-                  <p>
-                    <MapPin size={15} /> #39 WAT Street, Gandhi Bazaar, Basavanagudi, Bengaluru
-                  </p>
-                  <p>
-                    <Phone size={15} /> 080-41486443 · 7996 222111
-                  </p>
-                </div>
-              </div>
-            </motion.aside>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* MAIN VIEW CONTENT */}
-      <Outlet />
-
-      {/* FOOTER */}
-      <footer id="contact-footer" className="tbt-footer">
-        <div className="wrap">
-          {/* Trust Highlights Strip */}
-          <div className="ftr-trust-strip">
-            <div className="ftr-trust-item">
-              <Truck size={24} className="ftr-tico" />
-              <div>
-                <b>Free Shipping</b>
-                <small>On all orders above ₹1,499</small>
-              </div>
-            </div>
-            <div className="ftr-trust-item">
-              <Package size={24} className="ftr-tico" />
-              <div>
-                <b>Cash on Delivery (COD)</b>
-                <small>Available on orders over ₹299</small>
-              </div>
-            </div>
-            <div className="ftr-trust-item">
-              <ShieldCheck size={24} className="ftr-tico" />
-              <div>
-                <b>100% Food-Grade Silicone</b>
-                <small>BPA-free platinum cured moulds</small>
-              </div>
-            </div>
-            <div className="ftr-trust-item">
-              <HelpCircle size={24} className="ftr-tico" />
-              <div>
-                <b>Baker&apos;s Support Desk</b>
-                <small>Direct WhatsApp advice &amp; sizing</small>
-              </div>
+      {/* Footer */}
+      <footer className="ftr">
+        <div className="wrap ftr-grid">
+          <div className="ftr-col ftr-brand">
+            <BrandLogo />
+            <p>Choice of Home Bakers — a unit of Adi Shakti Trader. Cake toppers, silicone moulds, baking tools, cake boards, packaging and ribbons.</p>
+            <div className="ftr-social">
+              <a href={WA} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><MessageCircle size={17} /></a>
+              <a href="#" aria-label="Instagram"><Instagram size={17} /></a>
+              <a href="#" aria-label="Facebook"><Facebook size={17} /></a>
+              <a href="#" aria-label="YouTube"><Youtube size={17} /></a>
             </div>
           </div>
 
-          <div className="ftr-main-grid">
-            {/* Column 1: Brand Info */}
-            <div className="ftr-col ftr-col-brand">
-              <BrandLogo />
-              <p className="ftr-about-txt">
-                India&apos;s premier destination for cake moulds, festive packaging boxes,
-                acrylic toppers, piping nozzles, and confectionery supplies. Dispatched across India
-                from Gandhi Bazaar, Bengaluru.
-              </p>
-              <div className="ftr-store-address">
-                <MapPin size={16} />
-                <span>
-                  <strong>Store:</strong> #39, Ground Floor, WAT Street, Beside Domino&apos;s Pizza,
-                  Gandhi Bazaar, Basavanagudi, Bengaluru 560004
-                </span>
-              </div>
-            </div>
-
-            {/* Column 2: Shop Categories */}
-            <div className="ftr-col">
-              <h3>Shop Collections</h3>
-              <ul className="ftr-links">
-                {CATEGORIES.map((c) => (
-                  <li key={c}>
-                    <Link to={`/category/${catSlug(c)}`}>{c}</Link>
-                  </li>
-                ))}
-                <li>
-                  <Link to="/category/new-arrivals">New Arrivals</Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 3: Customer Care & Policies */}
-            <div className="ftr-col">
-              <h3>Customer Care</h3>
-              <ul className="ftr-links">
-                <li><Link to="/category/all">Browse All Products</Link></li>
-                <li><a href="tel:+917996222111">Track Your Order</a></li>
-                <li><a href="#faqs">Shipping &amp; Delivery Policy</a></li>
-                <li><a href="#faqs">Returns &amp; Replacement</a></li>
-                <li><a href="#faqs">Food-Grade Certification</a></li>
-                <li><a href="#faqs">Store Pickup (Gandhi Bazaar)</a></li>
-              </ul>
-            </div>
-
-            {/* Column 4: Newsletter & Contact */}
-            <div className="ftr-col ftr-col-newsletter">
-              <h3>Stay Connected</h3>
-              <p className="ftr-news-sub">
-                Subscribe for festive offers, new mould launches &amp; baking tutorials.
-              </p>
-
-              <form
-                className="ftr-newsletter-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert('Thank you for subscribing to Adi Shakti!');
-                }}
-              >
-                <input
-                  type="email"
-                  placeholder="Enter your email address..."
-                  required
-                  aria-label="Email for newsletter"
-                />
-                <button type="submit" className="btn btn-primary btn-sm">
-                  Subscribe
-                </button>
-              </form>
-
-              <div className="ftr-contact-block">
-                <a href="tel:+917996222111" className="ftr-contact-link">
-                  <Phone size={14} /> +91 7996 222111 / 080-41486443
-                </a>
-                <a
-                  href="https://wa.me/917996222111"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ftr-contact-link wa"
-                >
-                  <MessageCircle size={14} /> WhatsApp Support (Mon-Sat 10 AM - 8:30 PM)
-                </a>
-              </div>
-            </div>
+          <div className="ftr-col">
+            <h4>Shop</h4>
+            <ul>
+              {CATEGORIES.map((c) => <li key={c}><Link to={`/category/${catSlug(c)}`}>{c}</Link></li>)}
+              <li><Link to="/category/new-arrivals">New Arrivals</Link></li>
+            </ul>
           </div>
 
-          <div className="ftr-bottom-bar">
-            <span>
-              © {new Date().getFullYear()} Adi Shakti Trader (thebakingtools.com style store). All rights reserved.
-            </span>
-            <div className="ftr-payments">
-              <span className="pay-badge">UPI</span>
-              <span className="pay-badge">Visa</span>
-              <span className="pay-badge">Mastercard</span>
-              <span className="pay-badge">RuPay</span>
-              <span className="pay-badge">NetBanking</span>
-              <span className="pay-badge">COD</span>
-            </div>
+          <div className="ftr-col">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><Link to="/category/all">All Products</Link></li>
+              <li><button type="button" onClick={() => shop.setLoginOpen(true)}>My Account</button></li>
+              <li><button type="button" onClick={() => shop.setCartOpen(true)}>My Cart</button></li>
+              <li><button type="button" onClick={() => shop.setWishlistOpen(true)}>Wishlist</button></li>
+              <li><a href={WA} target="_blank" rel="noopener noreferrer">Order on WhatsApp</a></li>
+            </ul>
+          </div>
+
+          <div className="ftr-col">
+            <h4>Contact Us</h4>
+            <ul className="ftr-contact">
+              <li><MapPin size={16} /><span>#39, Ground Floor, WAT Street, Beside Domino&apos;s Pizza, Gandhi Bazaar, Basavanagudi, Bengaluru 560004</span></li>
+              <li><Phone size={16} /><span>Order booking: <a href="tel:+918041486443">080-41486443</a> · <a href="tel:+917996222111">7996 222111</a></span></li>
+              <li><Phone size={16} /><span>Mahesh: <a href="tel:+919242222111">9242 222111</a><br />Rani Mahesh: <a href="tel:+918792222111">8792 222111</a></span></li>
+              <li><Mail size={16} /><span>GSTIN: 29ANDPR3394Q1Z0</span></li>
+            </ul>
+          </div>
+        </div>
+        <div className="ftr-bottom">
+          <div className="wrap ftr-bottom-in">
+            <span>© {new Date().getFullYear()} Adi Shakti Trader. All rights reserved.</span>
+            <span>Bengaluru, Karnataka</span>
           </div>
         </div>
       </footer>
 
-      {/* Floating Back to Top Button */}
+      {/* WhatsApp "Need help?" */}
+      <a className="wa-float" href={WA} target="_blank" rel="noopener noreferrer" aria-label="Need help? Chat on WhatsApp">
+        <span className="wa-icon">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.86 9.86 0 0 0 12.04 2zm5.8 14.06c-.24.68-1.42 1.31-1.96 1.35-.5.05-.97.23-3.27-.68-2.77-1.09-4.52-3.92-4.66-4.1-.13-.18-1.11-1.48-1.11-2.82 0-1.34.7-2 .95-2.27.25-.27.54-.34.72-.34h.52c.17 0 .39-.06.61.47.24.56.79 1.92.86 2.06.07.14.11.3.02.48-.09.18-.14.3-.27.46-.14.16-.29.36-.41.48-.14.14-.28.29-.12.56.16.27.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.21 1.37.27.14.43.11.59-.07.16-.18.68-.79.86-1.07.18-.27.36-.23.61-.14.25.09 1.58.75 1.85.88.27.14.45.2.52.32.07.11.07.66-.17 1.33z" /></svg>
+        </span>
+        <span className="wa-label">Need help?</span>
+      </a>
+
+      {/* Scroll to top */}
       <AnimatePresence>
-        {showBackTop && (
-          <motion.button
-            className="back-to-top"
-            onClick={scrollToTop}
-            aria-label="Back to top"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ArrowUp size={20} />
+        {showTop && (
+          <motion.button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Scroll to top"
+            initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
+            <svg className="ring" viewBox="0 0 100 100" aria-hidden="true">
+              <defs><path id="tt-circle" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0" /></defs>
+              <text fontSize="11" fontWeight="700" fill="#1d6fd8" letterSpacing="2"><textPath href="#tt-circle">SCROLL TO TOP • SCROLL TO TOP •</textPath></text>
+            </svg>
+            <ArrowUp size={18} strokeWidth={2.6} />
           </motion.button>
         )}
       </AnimatePresence>
-
-      {/* MOBILE STICKY BOTTOM NAVIGATION DOCK */}
-      <nav className="mobile-dock" aria-label="Mobile Navigation">
-        <Link to="/" className={`dock-tab ${pathname === '/' ? 'active' : ''}`}>
-          <BrandLogo />
-          <span>Home</span>
-        </Link>
-        <Link
-          to="/category/all"
-          className={`dock-tab ${pathname.startsWith('/category') ? 'active' : ''}`}
-        >
-          <Package size={20} />
-          <span>Shop</span>
-        </Link>
-        <button
-          type="button"
-          className={`dock-tab ${shop.wishlistCount ? 'has-items' : ''}`}
-          onClick={() => shop.setWishlistOpen(true)}
-          aria-label="Wishlist"
-        >
-          <div className="dock-ico-wrap">
-            <Heart size={20} />
-            {shop.wishlistCount > 0 && <span className="dock-badge">{shop.wishlistCount}</span>}
-          </div>
-          <span>Wishlist</span>
-        </button>
-        <a
-          href="https://wa.me/917996222111?text=Hi%20Adi%20Shakti!"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="dock-tab dock-wa"
-        >
-          <MessageCircle size={20} />
-          <span>WhatsApp</span>
-        </a>
-        <button
-          type="button"
-          className={`dock-tab ${shop.count ? 'has-items' : ''}`}
-          onClick={() => shop.setCartOpen(true)}
-          aria-label="View Cart"
-        >
-          <div className="dock-ico-wrap">
-            <ShoppingCart size={20} />
-            {shop.count > 0 && <span className="dock-badge">{shop.count}</span>}
-          </div>
-          <span>Bag</span>
-        </button>
-      </nav>
 
       <CartDrawer />
       <WishlistDrawer />
       <VideoModal />
       <LoginModal />
+
+      {/* Toast */}
+      <AnimatePresence>
+        {shop.toast && (
+          <motion.div className="toast" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+            <img src={shop.toast.img} alt="" />
+            <span><b>Added to cart</b><small>{shop.toast.name}</small></span>
+            <button onClick={() => { shop.closeToast(); shop.setCartOpen(true); }}>View cart</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

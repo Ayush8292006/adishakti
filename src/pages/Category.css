@@ -1,5 +1,5 @@
 /* ============================================================
-   Category & Collection Page Styles — The Baking Tools Aesthetic
+   Category & Collection Page Styles 
    ============================================================ */
 
 .category-page {
@@ -424,3 +424,16 @@
 .mob-filter-foot .btn {
   flex: 1;
 }
+
+/* ===== Store theme overrides (cream banner, centered title, clean grid) ===== */
+.cat-page-banner { background: var(--cream); border-bottom: 1px dotted var(--dots); padding: 22px 0 22px; text-align: center; }
+.cat-page-banner .breadcrumbs { justify-content: center; }
+.cat-page-banner h1 { font-family: var(--font-heading); font-size: clamp(22px, 2.6vw, 30px); color: #000; }
+.cat-page-count { color: #666; }
+.cat-sidebar { border-radius: 10px; border-color: var(--line); top: 150px; }
+.cat-toolbar { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.cat-sort-control select { border: 1px solid #cfcfcf; border-radius: 6px; height: 38px; padding: 0 10px; background: #fff; }
+.filter-cat-row.active { color: var(--caramel); font-weight: 700; }
+.filter-chip { background: var(--cream); border-color: var(--gold-border); color: #5a3800; }
+.cat-product-grid { gap: 14px; }
+@media (max-width: 600px) { .cat-product-grid { gap: 10px; } }
